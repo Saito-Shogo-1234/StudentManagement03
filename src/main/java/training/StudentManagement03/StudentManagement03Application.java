@@ -13,13 +13,10 @@ public class StudentManagement03Application {
 		SpringApplication.run(StudentManagement03Application.class, args);
 	}
 
-	@GetMapping("/")
+	@GetMapping("/hello")
 	public String hello() {
-		int a = 10-1;
-		int b = a-1;
-
-		return String.valueOf(a+b);
+		return "Hello";
 	}
 }
 
-// localhost:8080// localhost:8080
+// localhost:8080
