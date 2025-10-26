@@ -1,4 +1,4 @@
-package training.StudentManagement03;
+package training.StudentManagement03.data;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,8 +1,11 @@
-package training.StudentManagement03;
+package training.StudentManagement03.repository;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import training.StudentManagement03.data.Student;
+import training.StudentManagement03.data.StudentCourse;
+
 
 @Mapper
 public interface StudentRepository {

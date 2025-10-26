@@ -1,0 +1,100 @@
+ユーザー層(Controller)-サービス層(Service)-DB層(Repository)　3層に分かれてる
+
+// イメージ
+controller:注文を受ける
+↓
+service:必要なものをrepositoryに伝える
+↓
+repository:必要なものを用意する
+↓
+service:repositoryから受け取ったものを加工したり整える
+↓
+controller:serviceから受け取ったものを渡す
+
+
+ユーザー層がフロント側（お客様側）
+DB層がバック側
+
+パッケージを層単位で分ける
+controller(パッケージ)
+・StudentControllerクラス
+data(パッケージ)
+・Studentクラス
+・StudentCourseクラス
+repository(パッケージ)
+・StudentRepositoryクラス
+service(パッケージ)
+・StudentServiceクラス
+
+/** でコメントを残せる
+
+インスタンス：クラスを基にオブジェクトを作ること
+コンストラクタ：インスタンスの初期化に使うメソッド。インスタンスを作るときに呼ばれる
+
+
+// StudentService
+
+package training.StudentManagement03.service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import training.StudentManagement03.data.Student;
+import training.StudentManagement03.data.StudentCourse;
+import training.StudentManagement03.repository.StudentRepository;
+
+@Service
+public class StudentService {
+
+  private StudentRepository repository;
+
+  @Autowired
+  public StudentService(StudentRepository repository) {
+    this.repository = repository;
+  }
+
+  public List<Student> searchStudentsList() {
+    return repository.search();
+  }
+
+  public List<StudentCourse> searchStudentsCourseList() {
+    return repository.searchCourse();
+  }
+}
+
+
+
+
+// StudentController
+
+package training.StudentManagement03.controller;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import training.StudentManagement03.data.Student;
+import training.StudentManagement03.data.StudentCourse;
+import training.StudentManagement03.service.StudentService;
+
+@RestController
+public class StudentController {
+
+  private StudentService service;
+
+  @Autowired
+  public StudentController(StudentService service) {
+    this.service = service;
+  }
+
+  @GetMapping("/studentsList")
+  public List<Student> getStudentsList() {
+    return service.searchStudentsList();
+  }
+
+  @GetMapping("/studentsCourseList")
+  public List<StudentCourse> getStudentsCourseList() {
+    return service.searchStudentsCourseList();
+  }
+}
