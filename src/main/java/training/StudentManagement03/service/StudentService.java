@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import training.StudentManagement03.data.Student;
-import training.StudentManagement03.data.StudentCourses;
+import training.StudentManagement03.data.StudentCourse;
 import training.StudentManagement03.repository.StudentRepository;
 
 @Service
@@ -22,7 +22,7 @@ public class StudentService {
     return repository.search();
   }
 
-  public List<StudentCourses> searchStudentsCourseList() {
+  public List<StudentCourse> searchStudentsCourseList() {
     return repository.searchCourse();
   }
 
@@ -32,7 +32,7 @@ public class StudentService {
         .collect(Collectors.toList());
   }
 
-  public List<StudentCourses> search30StudentsCourseList() {
+  public List<StudentCourse> search30StudentsCourseList() {
     return repository.searchCourse().stream()
         .filter(s -> s.getCourseName().equals("サッカー")||s.getCourseName().equals("野球"))
         .collect(Collectors.toList());
