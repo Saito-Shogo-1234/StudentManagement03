@@ -4,7 +4,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import training.StudentManagement03.data.Student;
-import training.StudentManagement03.data.StudentCourses;
+import training.StudentManagement03.data.StudentCourse;
 
 
 @Mapper
@@ -14,5 +14,5 @@ public interface StudentRepository {
   List<Student> search();
 
   @Select("SELECT * FROM students_courses")
-  List<StudentCourses> searchCourse();
+  List<StudentCourse> searchCourse();
 }
