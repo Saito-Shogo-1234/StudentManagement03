@@ -1,0 +1,42 @@
+※　＠RestController　HTTPリクエストを受け取り、HTTPレスポンス（JSON形式）を返す
+
+HTTPレスポンスを受け取ったフロントエンド（React,JavaScript）画面を操作（表示）する
+
+テンプレートエンジン
+・フロントエンドとバックエンドの間をつなぐ古典的な仕組み の一つ
+・サーバー側がHTMLを作成
+
+
+build.gradle に　Thymeleafを追加
+
+HTMLファイルはresourcesのtemplatesに作成
+※今回は<>StudentList.htmlを作成
+
+
+
+// コード
+
+
+<html xmlns:th="http://www.thymeleaf.org">
+・Thymeleafというテンプレートエンジンを使う（動的な値を使う）時に書く　必須
+
+<thead></thead>
+・ヘッダー名
+
+<tr></tr>
+・1行
+
+<td></td>
+・1列
+
+<tr th:each="studentDetail : ${studentList}">
+・オブジェクト（studentList）の数だけ行（tr）を作る
+
+th:each
+・ループ
+
+="studentDetail : ${studentList}"
+・オブジェクト（studentList）を変数名（studentDetail）で受け取る
+※for文と同じ
+
+
