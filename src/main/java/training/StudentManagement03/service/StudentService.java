@@ -15,14 +15,17 @@ public class StudentService {
 
   @Autowired
   public StudentService(StudentRepository repository) {
+
     this.repository = repository;
   }
 
   public List<Student> searchStudentsList() {
+
     return repository.search();
   }
 
   public List<StudentCourses> searchStudentsCourseList() {
+
     return repository.searchCourse();
   }
 
