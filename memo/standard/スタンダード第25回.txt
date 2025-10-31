@@ -40,6 +40,7 @@ th:action
 ・<label for="name">名前:</label>　<input type="text" id="name"　は　HTMLタグの情報
 ・th:field="*{name}"　は　studentDetail.getName() に対応する入力欄を作る
 ・*　は　studentDetailの省略を意味している
+・required　は　入力必須
 
 <button> type="submit">登録</button>
 ・"登録"ボタンを作成
@@ -51,6 +52,10 @@ th:action
     model.addAttribute("studentDetail", new StudentDetail());
     return "registerStudent";
   }
+
+・Springでは "文字列" = "テンプレートファイル名"
+・つまり　return "registerStudent";　は　src/main/resources/templates/registerStudent.html　を探す
+
 
   @PostMapping("/registerStudent")
   public String registerStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {

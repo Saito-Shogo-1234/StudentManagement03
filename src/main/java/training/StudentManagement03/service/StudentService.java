@@ -40,4 +40,8 @@ public class StudentService {
         .filter(s -> s.getCourseName().equals("サッカー")||s.getCourseName().equals("野球"))
         .collect(Collectors.toList());
   }
+
+  public void registerStudent(Student student) {
+    repository.insertStudent(student);
+  }
 }
