@@ -1,0 +1,138 @@
+※　＠RestController　HTTPリクエストを受け取り、HTTPレスポンス（JSON形式）を返す
+
+HTTPレスポンスを受け取ったフロントエンド（React,JavaScript）画面を操作（表示）する
+
+テンプレートエンジン
+・フロントエンドとバックエンドの間をつなぐ古典的な仕組み の一つ
+・サーバー側がHTMLを作成
+
+
+build.gradle に　Thymeleafを追加
+
+HTMLファイルはresourcesのtemplatesに作成
+※今回は<>StudentList.htmlを作成
+
+
+
+// コード
+
+
+<html xmlns:th="http://www.thymeleaf.org">
+・Thymeleafというテンプレートエンジンを使う（動的な値を使う）時に書く　必須
+
+<thead></thead>
+・ヘッダー名
+
+<tr></tr>
+・1行
+
+<td></td>
+・1列
+
+
+<tr th:each="studentDetail : ${studentList}">
+・オブジェクト（studentList）の数だけ行（tr）を作る
+
+th:each
+・ループ
+
+
+="studentDetail : ${studentList}"
+・オブジェクト（studentList）を変数名（studentDetail）で受け取る
+※for文と同じ
+
+
+<td th:text="${studentDetail.student.id}">1</td>
+
+th:text
+・テキスト情報を表示
+
+.student
+・フィールド名（studentDetailの）
+
+.id
+・studentの要素
+
+
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>受講生一覧</title>
+</head>
+<body>
+<h1>受講生一覧</h1>
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>名前</th>
+    <th>カナ名</th>
+    <th>ニックネーム</th>
+    <th>メールアドレス</th>
+    <th>地域</th>
+    <th>年齢</th>
+    <th>性別</th>
+    <th>備考</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="studentDetail : ${studentList}">
+    <td th:text="${studentDetail.student.id}">1</td>
+    <td th:text="${studentDetail.student.name}">円堂守</td>
+    <td th:text="${studentDetail.student.kanaName}">エンドウマモル</td>
+    <td th:text="${studentDetail.student.nickname}">マモル</td>
+    <td th:text="${studentDetail.student.email}">mamoru.endo@gmail.com</td>
+    <td th:text="${studentDetail.student.area}">東京</td>
+    <td th:text="${studentDetail.student.age}">15</td>
+    <td th:text="${studentDetail.student.gender}">男性</td>
+    <td th:text="${studentDetail.student.remark}"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+※一見一つしかデータが入っていないように見えるが th（テンプレートエンジン）になっているので動的処理をしている。
+※1,円堂守などはあくまでテストデータ
+
+
+
+
+// StudentController
+
+@Controller
+public class StudentController {
+
+  @GetMapping("/studentList")
+    public String getStudentsList(Model model) {
+      List<Student> students = service.searchStudentsList();
+      List<StudentCourses> studentCourses = service.searchStudentsCourseList();
+
+      model.addAttribute("studentList",converter.convertStudentDetails(students, studentCourses));
+      return "studentList";
+    }
+}
+
+
+@RestController は JSON(データ)をそのまま返す
+@Controller は HTML(画面)を返す
+
+List<>は
+@RestController は 返せる
+@Controller は　返せない(想定した返しが来ない)
+
+
+(Model model)
+・Spring MVCでは、コントローラー（Java）でデータを準備して → 画面（HTML）に渡すという流れ。その「データを渡す入れ物」が Model
+
+model.addAttribute("studentList",converter.convertStudentDetails(students, studentCourses));
+
+"studentList"
+・studentList.htmlの${studentList}のこと
+・中身はconverter.convertStudentDetails(students, studentCourses)というオブジェクト
+
+return "studentList";
+"studentList"
+・ファイル名(studentList.html)のことを表す

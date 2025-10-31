@@ -1,0 +1,73 @@
+POSTではURLに情報が載らない。HTTPのBODYに入る。
+
+
+
+// registerStudent
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>受講生登録</title>
+</head>
+<body>
+<h1>受講生登録</h1>
+<form th:action="@{/registerStudent}" th:object="${studentDetail}" method="post">
+  <div>
+    <label for="name">名前:</label>
+    <input type="text" id="name" th:field="*{student.name}" required />
+  </div>
+  <button type="submit">登録</button>
+</form>
+</body>
+</html>
+
+フォーム送信
+・ブラウザが入力値をサーバーに送る動作
+th:action
+・送信先
+受け取り場所
+・Controllerのメソッド
+受け取り方法
+・@RequestParam で個別に、または @ModelAttribute でオブジェクトとして受け取る
+
+<form th:action="@{/registerStudent}" th:object="${studentDetail}" method="post">
+・@{/registerStudent}は@PostMapping("/registerStudent")の"/registerStudent"のこと
+・form th:action="@{/registerStudent}"で"/registerStudent"にデータを送信
+・th:object="${studentDetail}"はフォーム全体で使用するオブジェクトがstudentDetailと指定
+
+<label for="name">名前:</label>　<input type="text" id="name" th:field="*{name}" required />
+・<label for="name">名前:</label>　<input type="text" id="name"　は　HTMLタグの情報
+・th:field="*{name}"　は　studentDetail.getName() に対応する入力欄を作る
+・*　は　studentDetailの省略を意味している
+
+<button> type="submit">登録</button>
+・"登録"ボタンを作成
+・type="submit"でフォーム内の全データを送信
+
+
+@GetMapping("/newStudent")
+  public  String newStudent(Model model) {
+    model.addAttribute("studentDetail", new StudentDetail());
+    return "registerStudent";
+  }
+
+  @PostMapping("/registerStudent")
+  public String registerStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if (result.hasErrors()) {
+      return "registerStudent";
+    }
+    // System.out.println(studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
+    return "redirect:/studentList";
+  }
+
+・Model は HTML（Thymeleaf）にデータを渡すための入れ物。この中に値を入れると、HTML側で ${...} で取り出せる
+
+「Model はサーバーから画面へ(フロント側→バッグ側)」
+「@ModelAttribute は画面からサーバーへ(バッグ側→フロント側)」
+
+BindingResult result
+・入力チェック
+
+return "redirect:/studentList";
+・/studentListへ(ページ)移動

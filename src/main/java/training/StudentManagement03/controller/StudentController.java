@@ -2,15 +2,19 @@ package training.StudentManagement03.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import training.StudentManagement03.controller.converter.StudentConverter;
 import training.StudentManagement03.data.Student;
 import training.StudentManagement03.data.StudentCourses;
 import training.StudentManagement03.domain.StudentDetail;
 import training.StudentManagement03.service.StudentService;
 
-@RestController
+@Controller
 public class StudentController {
 
   private StudentService service;
@@ -22,12 +26,13 @@ public class StudentController {
     this.converter = converter;
   }
 
-  @GetMapping("/studentsList")
-  public List<StudentDetail> getStudentsList() {
+  @GetMapping("/studentList")
+  public String getStudentsList(Model model) {
     List<Student> students = service.searchStudentsList();
     List<StudentCourses> studentCourses = service.searchStudentsCourseList();
 
-    return converter.convertStudentDetails(students, studentCourses);
+    model.addAttribute("studentList",converter.convertStudentDetails(students, studentCourses));
+    return "studentList";
   }
 
   @GetMapping("/studentsCourseList")
@@ -46,5 +51,20 @@ public class StudentController {
   @GetMapping("/30studentCourseList")
   public List<StudentCourses> get30StudentsCourseList() {
     return service.search30StudentsCourseList();
+  }
+
+  @GetMapping("/newStudent")
+  public  String newStudent(Model model) {
+    model.addAttribute("studentDetail", new StudentDetail());
+    return "registerStudent";
+  }
+
+  @PostMapping("/registerStudent")
+  public String registerStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if (result.hasErrors()) {
+      return "registerStudent";
+    }
+    // System.out.println(studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
+    return "redirect:/studentList";
   }
 }
