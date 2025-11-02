@@ -1,0 +1,135 @@
+登録処理
+
+// StudentRepository
+
+@Insert("INSERT INTO students(name,kana_name,nick_name,email,area,age,gender,remark) "
+      + "VALUES(#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{gender}, #{remark})")
+  @Options(useGeneratedKeys = true, keyProperty = "id")
+  void insertStudent(Student student);
+
+@Options(useGeneratedKeys = true, keyProperty = "id")
+・「studentsテーブルのidが自動採番（AUTO_INCREMENT）で、かつJava側のStudentオブジェクトにもそのidを反映したい」場合に必要
+
+トランザクション管理
+
+トランザクション　：　一連の処理をひとまとめにして、“すべて成功するか、すべて失敗するか” にする仕組み
+例）1.Aを登録 2.Bを登録　があった場合、2でエラーがでたら1も登録はされない。→　1だけ登録できてしまうとデータ不整合
+
+// StudentService
+@Transactional
+  public void registerStudent(StudentDetail studentDetail) {
+    repository.insertStudent(studentDetail.getStudent());
+  }
+
+@Transactional : サービス層につけるもの
+
+// TODO やること
+・TODO検索でやることのリストが見れる
+
+
+// registerStudent.html
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>受講生登録</title>
+</head>
+<body>
+<h1>受講生登録</h1>
+<form th:action="@{/registerStudent}" th:object="${studentDetail}" method="post">
+  <div>
+    <label for="name">名前:</label>
+    <input type="text" id="name" th:field="*{student.name}" required />
+  </div>
+  <div>
+    <label for="kanaName">フリガナ:</label>
+    <input type="text" id="kanaName" th:field="*{student.kanaName}" />
+  </div>
+  <div>
+    <label for="nickname">ニックネーム:</label>
+    <input type="text" id="nickname" th:field="*{student.nickname}" />
+  </div>
+  <div>
+    <label for="email">メールアドレス:</label>
+    <input type="text" id="email" th:field="*{student.email}" />
+  </div>
+  <div>
+    <label for="area">地域:</label>
+    <input type="text" id="area" th:field="*{student.area}" />
+  </div>
+  <div>
+    <label for="age">年齢:</label>
+    <input type="text" id="age" th:field="*{student.age}" />
+  </div>
+  <div>
+    <label for="gender">性別:</label>
+    <input type="text" id="gender" th:field="*{student.gender}" />
+  </div>
+  <div>
+    <label for="remark">備考:</label>
+    <input type="text" id="remark" th:field="*{student.remark}" />
+  </div>
+  <div th:each="course, stat : *{studentCourses}">
+    <label for="courseName" th:for="studentCourses.__${stat.index}__.courseName">受講コース名: </label>
+    <input type="text" id="courseName" th:id="studentCourses.__${stat.index}__.courseName"
+           th:field="*{studentCourses[__${stat.index}__].courseName}" />
+  </div>
+  <button type="submit">登録</button>
+</form>
+</body>
+</html>
+・th:each = ループ
+・course = studentCoursesの1件分
+・* = th:objectに指定した値（studentDetail）
+・ラベルとインプットは結び付けなければならない(label for と　inputのid)
+・th:forでlabelのfor、th:idでinputのidを上書きしている
+
+
+
+// StudentController
+
+@PostMapping("/registerStudent")
+  public String registerStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if (result.hasErrors()) {
+      return "registerStudent";
+    }
+
+    service.registerStudent(studentDetail);
+    return "redirect:/studentList";
+  }
+
+
+//StudentController
+
+@GetMapping("/newStudent")
+  public  String newStudent(Model model) {
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudentCourses(Arrays.asList(new StudentCourses()));
+    model.addAttribute("studentDetail", studentDetail);
+    return "registerStudent";
+  }
+・studentDetailのstudentCoursesの空のリストを1件だけ作成
+・コントローラで作った studentDetail オブジェクトを "studentDetail" という名前でHTML（Thymeleaf テンプレート)(registerStudent.html)に渡す
+・th:object="${studentDetail}" と書くことで、model.addAttribute("studentDetail", studentDetail) で渡したオブジェクトを使用する
+
+
+// StudentRepository
+
+@Insert("INSERT INTO students_courses(student_id,course_name,course_start,course_end) "
+      + "VALUES(#{studentId}, #{courseName}, #{courseStart}, #{courseEnd})")
+  @Options(useGeneratedKeys = true, keyProperty = "id")
+  void insertStudentCourses(StudentCourses studentCourses);
+
+//StudentService
+
+@Transactional
+  public void registerStudent(StudentDetail studentDetail) {
+    repository.insertStudent(studentDetail.getStudent());
+    for(StudentCourses studentCourses : studentDetail.getStudentCourses()) {
+      studentCourses.setStudentId(studentDetail.getStudent().getId());
+      studentCourses.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
+      studentCourses.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
+      repository.insertStudentCourses(studentCourses);
+    }
+  }
