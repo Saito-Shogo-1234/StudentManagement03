@@ -43,7 +43,8 @@ public interface StudentRepository {
       + " area=#{area},"
       + " age=#{age},"
       + " gender=#{gender},"
-      + " remark=#{remark}  WHERE id = #{id}")
+      + " remark=#{remark},"
+      + " is_deleted=#{isDeleted}  WHERE id = #{id}")
   void updateStudent(Student student);
 
   @Update("UPDATE students_courses SET "

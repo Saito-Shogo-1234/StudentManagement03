@@ -1,0 +1,187 @@
+// StudentRepository
+
+@Update("UPDATE students SET "
+      + " name=#{name},"
+      + " kana_name=#{kanaName},"
+      + " nick_name=#{nickname},"
+      + " email=#{email},"
+      + " area=#{area},"
+      + " age=#{age},"
+      + " gender=#{gender},"
+      + " remark=#{remark}  WHERE id = #{id}")
+  void updateStudent(Student student);
+
+  @Update("UPDATE students_courses SET "
+      + " course_name=#{courseName} WHERE id = #{id}")
+  void updateStudentCourses(StudentCourses studentCourses);
+
+・@Options(useGeneratedKeys = true, keyProperty = "id")　はINSERT専用
+
+
+// StudentService
+
+ @Transactional
+  public void updateStudent(StudentDetail studentDetail) {
+    repository.updateStudent(studentDetail.getStudent());
+    for(StudentCourses course : studentDetail.getStudentCourses()) {
+      repository.updateStudentCourses(course);
+    }
+  }
+
+// StudentController
+
+@GetMapping("/student/{id}")
+  public String getStudent(@PathVariable int id, Model model) {
+    StudentDetail studentDetail = service.searchStudent(id);
+
+    model.addAttribute("studentDetail", studentDetail);
+    return "updateStudent";
+  }
+
+@PostMapping("/updateStudent")
+  public String updateStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if (result.hasErrors()) {
+      return "updateStudent";
+    }
+    service.updateStudent(studentDetail);
+    return "redirect:/studentList";
+  }
+
+
+// StudentRepository
+
+@Select("SELECT * FROM students WHERE id = #{id}")
+  Student searchStudent(int id);
+・単一のStudentのデータを取ってくる
+
+@Select("SELECT * FROM students_courses WHERE student_id = #{studentId}")
+  List<StudentCourses> searchStudentCourses(int studentId);
+・指定したIDに該当する受講生コース情報を取ってくる
+
+
+// StudentService
+
+public StudentDetail searchStudent(int id) {
+    Student student = repository.searchStudent(id);
+    List<StudentCourses> studentCourses = repository.searchStudentCourses(student.getId());
+
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setStudentCourses(studentCourses);
+    return studentDetail;
+  }
+
+
+// updateStudent.html
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>受講生詳細</title>
+</head>
+<body>
+<h1>受講生詳細</h1>
+<form th:action="@{/updateStudent}" th:object="${studentDetail}" method="post">
+  <input type="hidden" th:field="*{student.id}" />
+  <div>
+    <label for="id">ID:</label>
+    <input type="text" id="id" th:field="*{student.id}" required />
+  </div>
+  <div>
+    <label for="name">名前:</label>
+    <input type="text" id="name" th:field="*{student.name}" required />
+  </div>
+  <div>
+    <label for="kanaName">フリガナ:</label>
+    <input type="text" id="kanaName" th:field="*{student.kanaName}" />
+  </div>
+  <div>
+    <label for="nickname">ニックネーム:</label>
+    <input type="text" id="nickname" th:field="*{student.nickname}" />
+  </div>
+  <div>
+    <label for="email">メールアドレス:</label>
+    <input type="text" id="email" th:field="*{student.email}" />
+  </div>
+  <div>
+    <label for="area">地域:</label>
+    <input type="text" id="area" th:field="*{student.area}" />
+  </div>
+  <div>
+    <label for="age">年齢:</label>
+    <input type="text" id="age" th:field="*{student.age}" />
+  </div>
+  <div>
+    <label for="gender">性別:</label>
+    <input type="text" id="gender" th:field="*{student.gender}" />
+  </div>
+  <div>
+    <label for="remark">備考:</label>
+    <input type="text" id="remark" th:field="*{student.remark}" />
+  </div>
+
+  <div th:each="course, stat : *{studentCourses}">
+    <label for="id"
+           th:for="studentCourses.__${stat.index}__.id">受講コースID: </label>
+    <input type="text" id="id" th:id="studentCourses.__${stat.index}__.id"
+           th:field="*{studentCourses[__${stat.index}__].id}" />
+
+    <label for="courseName"
+           th:for="studentCourses.__${stat.index}__.courseName">受講コース名:</label>
+    <input type="text" id="courseName" th:id="studentCourses.__${stat.index}__.courseName"
+             th:field="*{studentCourses[__${stat.index}__].courseName}" />
+  </div>
+  <button type="submit">更新</button>
+</form>
+</body>
+</html>
+
+
+// studentList.html
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>受講生一覧</title>
+</head>
+<body>
+<h1>受講生一覧</h1>
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>名前</th>
+    <th>カナ名</th>
+    <th>ニックネーム</th>
+    <th>メールアドレス</th>
+    <th>地域</th>
+    <th>年齢</th>
+    <th>性別</th>
+    <th>備考</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="studentDetail : ${studentList}">
+    <td th:text="${studentDetail.student.id}">1</td>
+    <td>
+      <a href="/studentList" th:href="@{/student/{id}(id=${studentDetail.student.id})}"
+         th:text="${studentDetail.student.name}">円堂守</a>
+    </td>
+    <td th:text="${studentDetail.student.kanaName}">エンドウマモル</td>
+    <td th:text="${studentDetail.student.nickname}">マモル</td>
+    <td th:text="${studentDetail.student.email}">mamoru.endo@gmail.com</td>
+    <td th:text="${studentDetail.student.area}">東京</td>
+    <td th:text="${studentDetail.student.age}">15</td>
+    <td th:text="${studentDetail.student.gender}">男性</td>
+    <td th:text="${studentDetail.student.remark}">NULL</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
+・href は　URLのこと
+・<a href="/studentList"　デフォルト値
+・th:href="@{/student/{id}(id=${studentDetail.student.id})}"で{id}に(id=${studentDetail.student.id})を埋め込む
