@@ -9,6 +9,7 @@
 
 @Options(useGeneratedKeys = true, keyProperty = "id")
 ・「studentsテーブルのidが自動採番（AUTO_INCREMENT）で、かつJava側のStudentオブジェクトにもそのidを反映したい」場合に必要
+・INSERT専用の設定
 
 トランザクション管理
 
