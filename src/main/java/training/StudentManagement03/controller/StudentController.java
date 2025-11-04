@@ -38,24 +38,6 @@ public class StudentController {
     return "studentList";
   }
 
-  @GetMapping("/studentsCourseList")
-  public List<StudentCourses> getStudentsCourseList() {
-    return service.searchStudentsCourseList();
-  }
-
-  @GetMapping("/30studentsList")
-  public List<StudentDetail> get30StudentsList() {
-    List<Student> students = service.search30StudentsList();
-    List<StudentCourses> studentCourses = service.search30StudentsCourseList();
-
-    return converter.convertStudentDetails(students, studentCourses);
-  }
-
-  @GetMapping("/30studentCourseList")
-  public List<StudentCourses> get30StudentsCourseList() {
-    return service.search30StudentsCourseList();
-  }
-
   @GetMapping("/student/{id}")
   public String getStudent(@PathVariable int id, Model model) {
     StudentDetail studentDetail = service.searchStudent(id);
