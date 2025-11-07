@@ -1,0 +1,25 @@
+削除処理(論理削除)
+
+
+
+// studentList.html
+
+<th>キャンセル</th>
+
+
+<td>
+  <input type="checkbox" th:checked="${studentDetail.student.deleted}" />
+</td>
+・isDeletedだと認識されない
+・studentDetail.student.nameだとgetName()をstudentDetail.student.ageだとgetAge()を探しているがisはgetを付けてくれないのでisDeletedで探しても見つからない
+
+
+
+// updateStudent.html
+
+<div>
+    <label for="isDeleted">キャンセル:</label>
+    <input type="checkbox" id="isDeleted" th:field="*{student.isDeleted}" />
+  </div>
+
+
