@@ -1,0 +1,101 @@
+Postman手順
+
+1.HOME画面のWorkspaces
+↓
+2.Create Workspace
+↓
+3.API development
+↓
+4.name(StudentManagement)
+↓
+5.Internal
+
+-----ここまでがCREATE-----
+
+
+overviewの隣の「+」タブ
+・どのHTTPメソッドを使うのか選択したり、URLを設定できたりする
+
+実行したリクエストを残せる
+1.Save
+↓
+2.Request name(任意の名前(受講生一覧検索))
+↓
+3.Save inの任意のcollectionに保存なければnew collectionで作成(API実行)
+
+
+-----------------------------------------------------------------------------
+Postman用にコードを書き換える
+
+
+
+// StudentController
+
+@GetMapping("/studentList")
+  public String getStudentsList(Model model) {
+    List<Student> students = service.searchStudentsList();
+    List<StudentCourses> studentCourses = service.searchStudentsCourseList();
+
+    model.addAttribute("studentList",converter.convertStudentDetails(students, studentCourses));
+    return "studentList";
+  }
+
+      ↓
+
+@GetMapping("/studentList")
+  public List<StudentDetail> getStudentsList() {
+    List<Student> students = service.searchStudentsList();
+    List<StudentCourses> studentCourses = service.searchStudentsCourseList();
+    return converter.convertStudentDetails(students, studentCourses);
+  }
+
+PostmanでURL(http://localhost:8080/studentList)を指定して送信(Send)で情報を取得できる
+
+
+
+
+@PostMapping("/updateStudent")
+  public String updateStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if (result.hasErrors()) {
+      return "updateStudent";
+    }
+    service.updateStudent(studentDetail);
+    return "redirect:/studentList";
+  }
+
+      ↓
+
+@PostMapping("/updateStudent")
+  public ResponseEntity<String> updateStudent(@RequestBody StudentDetail studentDetail) {
+    service.updateStudent(studentDetail);
+    return ResponseEntity.ok("更新できました。");
+  }
+
+・ResponseEntity.ok()の中身はResponseEntity<>と同じ
+※ここではStringなので”更新できました。”と返している
+
+PostmanでURL(http://localhost:8080/updateStudent)を指定
+PostmanでHeadersのkey(Content-Type, Accept)とValue(application/json, application/json, application/*+json)を指定
+PostmanでBodyのrawでJSON形式のコードを書く
+※コード
+    {
+        "student": {
+            "id": 1,
+            "name": "守円堂",
+            "kanaName": "エンドウマモル",
+            "nickname": "マモル",
+            "email": "mamoru.endo@gmail.com",
+            "area": "東京",
+            "age": 15,
+            "gender": "男性",
+            "remark": "",
+            "deleted": false
+        },
+        "studentCourses": [
+
+        ]
+    }
+
+・studentはデータが１件のみなので｛｝、studentCoursesはリストなので[]
+※form-dataは画面から送られたものと認識してしまうのでダメ
+
