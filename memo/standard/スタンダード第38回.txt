@@ -1,0 +1,278 @@
+登録(CREATE)処理
+
+// StudentController
+
+@GetMapping("/student/{id}")
+  public StudentDetail getStudent(@PathVariable int id) {
+    return service.searchStudent(id);
+  }
+
+
+@PostMapping("/registerStudent")
+  public ResponseEntity<StudentDetail> registerStudent(@RequestBody StudentDetail studentDetail) {
+    StudentDetail responseStudentDetail = service.registerStudent(studentDetail);
+    return ResponseEntity.ok(responseStudentDetail);
+  }
+
+newStudent削除
+
+
+// StudentService
+
+@Transactional
+  public StudentDetail registerStudent(StudentDetail studentDetail) {
+    repository.insertStudent(studentDetail.getStudent());
+    for(StudentCourses studentCourses : studentDetail.getStudentCourses()) {
+      studentCourses.setStudentId(studentDetail.getStudent().getId());
+      studentCourses.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
+      studentCourses.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
+      repository.insertStudentCourses(studentCourses);
+    }
+    return studentDetail;
+  }
+・返り値をStudentDetailに変更してstudentDetailというデータを返す
+
+
+
+PostmanでURL(http://localhost:8080/student/19)を指定
+
+PostmanでURL(http://localhost:8080/registerStudent)を指定
+HeaderはupdateStudentと同じ
+BodyのrawでJSON形式でコードを書く
+※コード
+{
+    "student": {
+        "name": "美舞",
+        "kanaName": "ミマイ",
+        "nickname": "マイマイ",
+        "email": "mimai@gmail.com",
+        "area": "岡山",
+        "age": 27,
+        "gender": "女性",
+        "remark": ""
+    },
+    "studentCourses": [
+        {
+            "courseName": "洋楽コース"
+        }
+    ]
+}
+
+templatesのパッケージの中身はすべて削除
+
+
+
+リファクタリングのタイミング
+・1つの実装が出来た(/studentList,/student/{id},/registerStudent,/updateStudent)
+
+
+
+
+リファクタリング コメント
+// StudentController
+
+/**
+ * 受講生の検索や登録、更新を行うREST APIとして受け付るControllerです。
+ */
+@RestController
+public class StudentController {
+
+  private StudentService service;
+
+
+  @Autowired
+  public StudentController(StudentService service) {
+    this.service = service;
+  }
+
+  /**
+   * 受講生一覧検索です。
+   * 全件検索を行うので、条件指定は行わない。
+   *
+   * @return 受講生一覧(全件)
+   */
+  @GetMapping("/studentList")
+  public List<StudentDetail> getStudentsList() {
+    return service.searchStudentsList();
+  }
+
+  /**
+   * 受講生検索です。
+   * IDに紐づく任意の受講生の情報を取得します。
+   *
+   * @param id 受講生ID
+   * @return 受講生
+   */
+  @GetMapping("/student/{id}")
+  public StudentDetail getStudent(@PathVariable int id) {
+    return service.searchStudent(id);
+  }
+
+
+
+リファクタリング　コメント
+// StudentConverter
+
+/**
+ * 受講生詳細を受講生や受講生コース情報、又はその逆の変換を行うコンバーターです。
+ */
+@Component
+public class StudentConverter {
+
+  /**
+   * 受講生に紐づく受講生コース情報をマッピングする。
+   * 受講生コース情報は受講生に対して複数存在するのでループを回して受講生詳細情報を組み立てる。
+   *
+   * @param students 受講生一覧
+   * @param studentCourses 受講生コース情報のリスト
+   * @return 受講生詳細情報のリスト
+   */
+  public List<StudentDetail> convertStudentDetails(List<Student> students,
+      List<StudentCourses> studentCourses) {
+    List<StudentDetail> studentDetails=new ArrayList<>();
+    students.forEach(student -> {
+      StudentDetail studentDetail = new StudentDetail();
+      studentDetail.setStudent(student);
+
+      List<StudentCourses> convertStudentCourses = studentCourses.stream()
+          .filter(studentCourse -> student.getId() == studentCourse.getStudentId())
+          .collect(Collectors.toList());
+
+      studentDetail.setStudentCourses(convertStudentCourses);
+      studentDetails.add(studentDetail);
+    });
+    return studentDetails;
+  }
+}
+
+
+
+リファクタリング　コメント
+// StudentService
+
+/**
+ * 受講生情報を取り扱うサービスです。
+ * 検索や登録、更新処理を行います。
+ */
+@Service
+public class StudentService {
+
+  private StudentRepository repository;
+  private StudentConverter converter;
+
+  @Autowired
+  public StudentService(StudentRepository repository, StudentConverter converter) {
+    this.repository = repository;
+    this.converter = converter;
+  }
+
+  /**
+   * 受講生の一覧検索です。
+   * 全件検索を行うので、条件指定は行わない。
+   *
+   * @return 受講生一覧(全件)
+   */
+  public List<StudentDetail> searchStudentsList() {
+    List<Student> studentList = repository.search();
+    List<StudentCourses> studentCoursesList = repository.searchCourse();
+    return converter.convertStudentDetails(studentList, studentCoursesList);
+  }
+
+  /**
+   * 受講生検索です。
+   * IDに紐づく受講生情報を取得した後、その受講生に紐づく受講生コース情報を取得して設定します。
+   *
+   * @param id 受講生ID
+   * @return 受講生
+   */
+  public StudentDetail searchStudent(int id) {
+    Student student = repository.searchStudent(id);
+    List<StudentCourses> studentCourses = repository.searchStudentCourses(student.getId());
+
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setStudentCourses(studentCourses);
+    return studentDetail;
+  }
+
+
+
+
+リファクタリング　コメント
+// StudentRepository
+
+/**
+ * 受講生テーブルと受講生コース情報テーブルと紐づくRepositoryです。
+ */
+@Mapper
+public interface StudentRepository {
+
+  /**
+   * 受講生の全件検索を行います。
+   *
+   * @return 受講生一覧(全件)
+   */
+  @Select("SELECT * FROM students")
+  List<Student> search();
+
+  /**
+   * IDに紐づく受講生の検索を行います。
+   *
+   * @param id 受講生ID
+   * @return 受講生
+   */
+  @Select("SELECT * FROM students WHERE id = #{id}")
+  Student searchStudent(int id);
+
+  /**
+   * 受講生のコース情報の全件検索を行います。
+   *
+   * @return 受講生のコース情報(全件)
+   */
+  @Select("SELECT * FROM students_courses")
+  List<StudentCourses> searchCourse();
+
+  /**
+   * 受講生IDに紐づく受講生コース情報を検索します。
+   *
+   * @param studentId 受講生ID
+   * @return 受講生IDに紐づく受講生コース情報
+   */
+  @Select("SELECT * FROM students_courses WHERE student_id = #{studentId}")
+  List<StudentCourses> searchStudentCourses(int studentId);
+
+
+リファクタリングでconverterの処理をControllerからServiceに移した
+
+
+
+
+@NoArgsConstructor
+・引数を使わない
+
+@AllArgsConstructor
+・全フィールドを引数に取る
+
+上記２つにより
+例）
+new Student();              // 引数なし
+new Student(”円堂守”, 15)    // 引数あり
+どちらも作成可能
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class StudentDetail {
+
+  private Student student;
+  private List<StudentCourses> studentCourses;
+}
+
+
+
+public StudentDetail searchStudent(int id) {
+    Student student = repository.searchStudent(id);
+    List<StudentCourses> studentCourses = repository.searchStudentCourses(student.getId());
+    return new StudentDetail(student, studentCourses);
+  }
