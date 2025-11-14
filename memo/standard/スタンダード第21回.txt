@@ -11,14 +11,14 @@ converter
  import lombok.Getter;
  import lombok.Setter;
  import training.StudentManagement03.data.Student;
- import training.StudentManagement03.data.StudentCourses;
+ import training.StudentManagement03.data.StudentCourse;
 
  @Getter
  @Setter
  public class StudentDetail {
 
    private Student student;
-   private List<StudentCourses> studentCourses;
+   private List<StudentCourses> studentCours;
  }
 
 
@@ -33,7 +33,7 @@ converter
  import org.springframework.web.bind.annotation.RestController;
  import training.StudentManagement03.controller.converter.StudentConverter;
  import training.StudentManagement03.data.Student;
- import training.StudentManagement03.data.StudentCourses;
+ import training.StudentManagement03.data.StudentCourse;
  import training.StudentManagement03.domain.StudentDetail;
  import training.StudentManagement03.service.StudentService;
 
@@ -52,9 +52,9 @@ converter
    @GetMapping("/studentsList")
    public List<StudentDetail> getStudentsList() {
      List<Student> students = service.searchStudentsList();
-     List<StudentCourses> studentCourses = service.searchStudentsCourseList();
+     List<StudentCourses> studentCours = service.searchStudentsCourseList();
 
-     return converter.convertStudentDetails(students, studentCourses);
+     return converter.convertStudentDetails(students, studentCours);
    }
  }
 
@@ -69,24 +69,24 @@ converter
  import java.util.stream.Collectors;
  import org.springframework.stereotype.Component;
  import training.StudentManagement03.data.Student;
- import training.StudentManagement03.data.StudentCourses;
+ import training.StudentManagement03.data.StudentCourse;
  import training.StudentManagement03.domain.StudentDetail;
 
  @Component
  public class StudentConverter {
 
    public List<StudentDetail> convertStudentDetails(List<Student> students,
-       List<StudentCourses> studentCourses) {
+       List<StudentCourses> studentCours) {
      List<StudentDetail> studentDetails=new ArrayList<>();
      students.forEach(student -> {
        StudentDetail studentDetail = new StudentDetail();
        studentDetail.setStudent(student);
 
-       List<StudentCourses> convertStudentCourses = studentCourses.stream()
+       List<StudentCourses> convertStudentCours = studentCours.stream()
            .filter(studentCourse -> student.getId() == studentCourse.getStudentId())
            .collect(Collectors.toList());
 
-       studentDetail.setStudentCourses(convertStudentCourses);
+       studentDetail.setStudentCourses(convertStudentCours);
        studentDetails.add(studentDetail);
      });
      return studentDetails;
