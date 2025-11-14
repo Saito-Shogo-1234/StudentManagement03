@@ -71,10 +71,10 @@
     <label for="remark">備考:</label>
     <input type="text" id="remark" th:field="*{student.remark}" />
   </div>
-  <div th:each="course, stat : *{studentCourses}">
-    <label for="courseName" th:for="studentCourses.__${stat.index}__.courseName">受講コース名: </label>
-    <input type="text" id="courseName" th:id="studentCourses.__${stat.index}__.courseName"
-           th:field="*{studentCourses[__${stat.index}__].courseName}" />
+  <div th:each="course, stat : *{studentCours}">
+    <label for="courseName" th:for="studentCours.__${stat.index}__.courseName">受講コース名: </label>
+    <input type="text" id="courseName" th:id="studentCours.__${stat.index}__.courseName"
+           th:field="*{studentCours[__${stat.index}__].courseName}" />
   </div>
   <button type="submit">登録</button>
 </form>
@@ -120,17 +120,17 @@
 @Insert("INSERT INTO students_courses(student_id,course_name,course_start,course_end) "
       + "VALUES(#{studentId}, #{courseName}, #{courseStart}, #{courseEnd})")
   @Options(useGeneratedKeys = true, keyProperty = "id")
-  void insertStudentCourses(StudentCourses studentCourses);
+  void insertStudentCourses(StudentCourses studentCours);
 
 //StudentService
 
 @Transactional
   public void registerStudent(StudentDetail studentDetail) {
     repository.insertStudent(studentDetail.getStudent());
-    for(StudentCourses studentCourses : studentDetail.getStudentCourses()) {
-      studentCourses.setStudentId(studentDetail.getStudent().getId());
-      studentCourses.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
-      studentCourses.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
-      repository.insertStudentCourses(studentCourses);
+    for(StudentCourses studentCours : studentDetail.getStudentCourses()) {
+      studentCours.setStudentId(studentDetail.getStudent().getId());
+      studentCours.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
+      studentCours.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
+      repository.insertStudentCourses(studentCours);
     }
   }

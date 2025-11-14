@@ -22,11 +22,11 @@ newStudent削除
 @Transactional
   public StudentDetail registerStudent(StudentDetail studentDetail) {
     repository.insertStudent(studentDetail.getStudent());
-    for(StudentCourses studentCourses : studentDetail.getStudentCourses()) {
-      studentCourses.setStudentId(studentDetail.getStudent().getId());
-      studentCourses.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
-      studentCourses.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
-      repository.insertStudentCourses(studentCourses);
+    for(StudentCourses studentCours : studentDetail.getStudentCourses()) {
+      studentCours.setStudentId(studentDetail.getStudent().getId());
+      studentCours.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
+      studentCours.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
+      repository.insertStudentCourses(studentCours);
     }
     return studentDetail;
   }
@@ -51,7 +51,7 @@ BodyのrawでJSON形式でコードを書く
         "gender": "女性",
         "remark": ""
     },
-    "studentCourses": [
+    "studentCours": [
         {
             "courseName": "洋楽コース"
         }
@@ -124,21 +124,21 @@ public class StudentConverter {
    * 受講生コース情報は受講生に対して複数存在するのでループを回して受講生詳細情報を組み立てる。
    *
    * @param students 受講生一覧
-   * @param studentCourses 受講生コース情報のリスト
+   * @param studentCours 受講生コース情報のリスト
    * @return 受講生詳細情報のリスト
    */
   public List<StudentDetail> convertStudentDetails(List<Student> students,
-      List<StudentCourses> studentCourses) {
+      List<StudentCourses> studentCours) {
     List<StudentDetail> studentDetails=new ArrayList<>();
     students.forEach(student -> {
       StudentDetail studentDetail = new StudentDetail();
       studentDetail.setStudent(student);
 
-      List<StudentCourses> convertStudentCourses = studentCourses.stream()
+      List<StudentCourses> convertStudentCours = studentCours.stream()
           .filter(studentCourse -> student.getId() == studentCourse.getStudentId())
           .collect(Collectors.toList());
 
-      studentDetail.setStudentCourses(convertStudentCourses);
+      studentDetail.setStudentCourses(convertStudentCours);
       studentDetails.add(studentDetail);
     });
     return studentDetails;
@@ -174,8 +174,8 @@ public class StudentService {
    */
   public List<StudentDetail> searchStudentsList() {
     List<Student> studentList = repository.search();
-    List<StudentCourses> studentCoursesList = repository.searchCourse();
-    return converter.convertStudentDetails(studentList, studentCoursesList);
+    List<StudentCourses> studentCourseList = repository.searchCourse();
+    return converter.convertStudentDetails(studentList, studentCourseList);
   }
 
   /**
@@ -187,11 +187,11 @@ public class StudentService {
    */
   public StudentDetail searchStudent(int id) {
     Student student = repository.searchStudent(id);
-    List<StudentCourses> studentCourses = repository.searchStudentCourses(student.getId());
+    List<StudentCourses> studentCours = repository.searchStudentCourses(student.getId());
 
     StudentDetail studentDetail = new StudentDetail();
     studentDetail.setStudent(student);
-    studentDetail.setStudentCourses(studentCourses);
+    studentDetail.setStudentCourses(studentCours);
     return studentDetail;
   }
 
@@ -266,13 +266,13 @@ new Student(”円堂守”, 15)    // 引数あり
 public class StudentDetail {
 
   private Student student;
-  private List<StudentCourses> studentCourses;
+  private List<StudentCourses> studentCours;
 }
 
 
 
 public StudentDetail searchStudent(int id) {
     Student student = repository.searchStudent(id);
-    List<StudentCourses> studentCourses = repository.searchStudentCourses(student.getId());
-    return new StudentDetail(student, studentCourses);
+    List<StudentCourses> studentCours = repository.searchStudentCourses(student.getId());
+    return new StudentDetail(student, studentCours);
   }

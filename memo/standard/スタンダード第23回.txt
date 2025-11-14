@@ -108,9 +108,9 @@ public class StudentController {
   @GetMapping("/studentList")
     public String getStudentsList(Model model) {
       List<Student> students = service.searchStudentsList();
-      List<StudentCourses> studentCourses = service.searchStudentsCourseList();
+      List<StudentCourses> studentCours = service.searchStudentsCourseList();
 
-      model.addAttribute("studentList",converter.convertStudentDetails(students, studentCourses));
+      model.addAttribute("studentList",converter.convertStudentDetails(students, studentCours));
       return "studentList";
     }
 }
@@ -127,11 +127,11 @@ List<>は
 (Model model)
 ・Spring MVCでは、コントローラー（Java）でデータを準備して → 画面（HTML）に渡すという流れ。その「データを渡す入れ物」が Model
 
-model.addAttribute("studentList",converter.convertStudentDetails(students, studentCourses));
+model.addAttribute("studentList",converter.convertStudentDetails(students, studentCours));
 
 "studentList"
 ・studentList.htmlの${studentList}のこと
-・中身はconverter.convertStudentDetails(students, studentCourses)というオブジェクト
+・中身はconverter.convertStudentDetails(students, studentCours)というオブジェクト
 
 return "studentList";
 "studentList"
