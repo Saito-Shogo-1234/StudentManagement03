@@ -6,3 +6,94 @@
 POStとPUT　イメージ
 POST : 放り込む
 PUT : 入れ替える
+
+MyBatis でアノテーション方式（@Select など）を XML 方式に置き換えることは可能
+MyBatis 本来の “標準的な使い方” は XML Mapper
+MyBatisの内容はxmlファイルに書き込める
+
+1.resourcesで新規のディレクトリ(名前:mapper)
+2.mapperディレクトリで新規のファイル(studentRepository.xml) ※Repositoryの名前を付けたほうが良い
+
+
+
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="training.StudentManagement03.repository.StudentRepository">
+
+  <!-- 受講生の全件検索 -->
+  <select id="search" resultType="training.StudentManagement03.data.Student">
+    SELECT * FROM students
+  </select>
+
+  <!-- 受講生の検索 -->
+  <select id="searchStudent" resultType="training.StudentManagement03.data.Student">
+    SELECT * FROM students WHERE id = #{id}
+  </select>
+
+
+</mapper>
+
+
+
+mapper namespaceで指定できるRepositoryは@MapperがあるRepository(今回はStudentRepository)
+
+select id=""
+・idで指定するのはメソッド名(今回はList<Student> search();のsearch())
+resultType=""
+・指定するのは結果に当たる部分(今回はList<Student> search();のStudentを具体的な書き方で表すtraining.StudentManagement03.data.Student)
+
+<select>と</select>の間にSQL文(今回はSELECT * FROM students)
+
+<!-- -->
+・コメントをスペースにコメントを書ける
+
+上記のコードにより@Select("SELECT * FROM students")をStudentRepositoryから消せる
+
+
+application.propertiesの中にMapperファイルがどこにあるかを指定するオプションがある。
+
+      ↓
+
+// application.properties
+
+mybatis.mapper-locations=classpath*:/mapper/*.xml
+・クラスパス上の /mapper ディレクトリ
+・その中のすべての .xml ファイル
+を Mapper XML として読み込む という意味
+
+
+入力チェック(validation)の機能の追加
+build.gradleにimplementation 'org.springframework.boot:spring-boot-starter-validation'
+
+
+// StudentController
+
+@RestController
+@Validated
+public class StudentController
+
+
+@Validated
+・入力チェックの機能が使える。　例）@Size,@Maxなど
+
+
+@GetMapping("/student/{id}")
+  public StudentDetail getStudent(@PathVariable @Min(1) @Max(999) int id) {
+    return service.searchStudent(id);
+  }
+
+@Min(1) @Max(999)
+・1以上999以下
+
+
+@PostMapping("/registerStudent")
+  public ResponseEntity<StudentDetail> registerStudent(@RequestBody @Valid StudentDetail studentDetail) {
+    StudentDetail responseStudentDetail = service.registerStudent(studentDetail);
+    return ResponseEntity.ok(responseStudentDetail);
+  }
+
+@Valid StudentDetail
+StudentDetail(今回はStudent,StudentCourse)の制約に従ってチェックが入る
