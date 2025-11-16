@@ -14,5 +14,38 @@
     SELECT * FROM students WHERE id = #{id}
   </select>
 
+  <!-- 受講生コース情報の全件検索 -->
+  <select id="searchCourse" resultType="training.StudentManagement03.data.StudentCourse">
+    SELECT * FROM students_courses
+  </select>
+
+  <!-- 受講生コース情報の検索 -->
+  <select id="searchStudentCourse" resultType="training.StudentManagement03.data.StudentCourse">
+    SELECT * FROM students_courses WHERE student_id = #{studentId}
+  </select>
+
+  <!-- 受講生の新規登録 -->
+  <insert id="insertStudent" parameterType="training.StudentManagement03.data.Student" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO
+    students ( name, kana_name, nick_name, email, area, age, gender, remark, is_deleted )
+    VALUES ( #{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{gender}, #{remark}, false )
+  </insert>
+
+  <!-- 受講生コース情報の新規登録 -->
+  <insert id="insertStudentCourse" parameterType="training.StudentManagement03.data.StudentCourse" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO students_courses( student_id,course_name,course_start,course_end )
+    VALUES( #{studentId}, #{courseName}, #{courseStart}, #{courseEnd} )
+  </insert>
+
+  <!-- 受講生の更新 -->
+  <update id="updateStudent" parameterType="training.StudentManagement03.data.Student">
+    UPDATE students
+    SET name = #{name}, kana_name = #{kanaName}, nick_name = #{nickname}, email = #{email}, area = #{area}, age = #{age}, gender = #{gender}, remark = #{remark}, is_deleted = #{isDeleted} WHERE id = #{id}
+  </update>
+
+  <!-- 受講生の更新 -->
+  <update id="updateStudentCourse" parameterType="training.StudentManagement03.data.StudentCourse">
+    UPDATE students_courses SET course_name=#{courseName} WHERE id = #{id}
+  </update>
 
 </mapper>

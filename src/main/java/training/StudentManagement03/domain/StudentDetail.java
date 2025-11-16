@@ -1,5 +1,6 @@
 package training.StudentManagement03.domain;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,9 @@ import training.StudentManagement03.data.StudentCourse;
 @AllArgsConstructor
 public class StudentDetail {
 
+  @Valid
   private Student student;
+
+  @Valid
   private List<StudentCourse> studentsCourseList;
 }
