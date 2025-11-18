@@ -1,5 +1,6 @@
 package training.StudentManagement03.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import training.StudentManagement03.domain.StudentDetail;
-import training.StudentManagement03.exception.TestException;
 import training.StudentManagement03.service.StudentService;
 
 /**
@@ -38,6 +38,7 @@ public class StudentController {
    *
    * @return 受講生詳細一覧(全件)
    */
+  @Operation(summary = "受講生一覧検索", description = "受講生の一覧を検索します。")
   @GetMapping("/studentList")
   public List<StudentDetail> getStudentsList() {
     return service.searchStudentsList();
@@ -50,6 +51,7 @@ public class StudentController {
    * @param id 受講生ID
    * @return 受講生
    */
+  @Operation(summary = "受講生検索", description = "任意の受講生を検索します。")
   @GetMapping("/student/{id}")
   public StudentDetail getStudent(@PathVariable @Min(1) @Max(999) int id) {
     return service.searchStudent(id);
@@ -61,6 +63,7 @@ public class StudentController {
    * @param studentDetail 受講生詳細
    * @return 実行結果
    */
+  @Operation(summary = "受講生登録", description = "受講生を登録します。")
   @PostMapping("/registerStudent")
   public ResponseEntity<StudentDetail> registerStudent(@RequestBody @Valid StudentDetail studentDetail) {
     StudentDetail responseStudentDetail = service.registerStudent(studentDetail);
@@ -74,6 +77,7 @@ public class StudentController {
    * @param studentDetail 受講生詳細
    * @return 実行結果
    */
+  @Operation(summary = "受講生更新", description = "受講生の更新をします。")
   @PutMapping("/updateStudent")
   public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
     service.updateStudent(studentDetail);

@@ -1,0 +1,64 @@
+ドキュメント:製作者以外の者用
+
+API仕様書
+
+
+// build.gradle
+OpenAPI Generator
+implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
+
+
+// StudentManagement03Application.java
+@OpenAPIDefinition(info = @Info(title = "受講生管理システム"))
+@SpringBootApplication
+public class StudentManagement03Application
+
+@OpenAPIDefinition
+・「このアプリのAPI仕様はこういう情報ですよ」という大枠の設定を行うアノテーション。
+・各Controller の @Operation などとは違い、アプリ全体の情報 を設定する
+・info,servers,tags,security等
+
+
+// StudentController.java
+@Operation(summary = "一覧検索", description = "受講生の一覧を検索します。")
+  @GetMapping("/studentList")
+  public List<StudentDetail> getStudentsList()
+
+@Operation(summary = "受講生登録", description = "受講生を登録します。")
+  @PostMapping("/registerStudent")
+  public ResponseEntity<StudentDetail> registerStudent(@RequestBody @Valid StudentDetail studentDetail)
+
+@Operation(summary = "受講生検索", description = "任意の受講生を検索します。")
+
+@Operation(summary = "受講生更新", description = "受講生の更新をします。")
+
+@Operation
+・1つのAPIメソッド（＝エンドポイント）についての説明を書くアノテーション
+・summary,description等
+
+
+// StudentDetail.java
+@Schema(description = "受講生詳細")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class StudentDetail
+
+
+// Student.java
+@Schema(description = "受講生")
+@Getter
+@Setter
+public class Student
+
+
+// StudentCourse.java
+@Schema(description = "受講生コース情報")
+@Getter
+@Setter
+public class StudentCourse
+
+
+
+アドレス　：　http://localhost:8080/swagger-ui/index.html
