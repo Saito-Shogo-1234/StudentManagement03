@@ -1,0 +1,142 @@
+JUnit
+・Java の単体テスト（ユニットテスト）を行うためのフレームワークです
+・プログラムの 小さな単位（メソッドやクラス） が正しく動くかどうかを自動でチェックできます
+
+
+// build.gradle
+testImplementation 'org.springframework.boot:spring-boot-starter-test'
+・JUnitが使用できる
+
+
+テスト作成(IDEの場合)
+1.任意のクラスの画面を表示
+2.画面上で右クリック
+3.生成をクリック
+4.テストをクリック
+5.テストライブラリをJUnit5に指定
+6.テスト名を指定(クラス名の後ろにTestをつける)
+7.OKを選択
+
+
+
+// StudentServiceTest.java
+
+package training.StudentManagement03.service;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import training.StudentManagement03.controller.converter.StudentConverter;
+import training.StudentManagement03.data.Student;
+import training.StudentManagement03.data.StudentCourse;
+import training.StudentManagement03.domain.StudentDetail;
+import training.StudentManagement03.repository.StudentRepository;
+
+@ExtendWith(MockitoExtension.class)
+class StudentServiceTest {
+
+  @Mock
+  private StudentRepository repository;
+
+  @Mock
+  private StudentConverter converter;
+
+  private StudentService sut;
+
+  @BeforeEach
+  void before() {
+    sut = new StudentService(repository, converter);
+  }
+
+  @Test
+  void 受講生詳細の一覧検索＿リポジトリとコンバーターの処理が適切に呼びだせていること() {
+    List<Student> studentList = new ArrayList<>();
+    List<StudentCourse> studentCourseList = new ArrayList<>();
+    when(repository.search()).thenReturn(studentList);
+    when(repository.searchCourse()).thenReturn(studentCourseList);
+
+    sut.searchStudentsList();
+
+    verify(repository, times(1)).search();
+    verify(repository, times(1)).searchCourse();
+    verify(converter, times(1)).convertStudentDetails(studentList, studentCourseList);
+  }
+
+  @Test
+  void IDに紐づく受講生詳細の検索＿リポジトリの処理が適切に呼びだせていること() {
+    int id = 777;
+    Student student = new Student();
+    student.setId(id);
+    List<StudentCourse> studentCourseList = new ArrayList<>();
+
+    when(repository.searchStudent(id)).thenReturn(student);
+    when(repository.searchStudentCourse(student.getId())).thenReturn(studentCourseList);
+
+    StudentDetail result = sut.searchStudent(id);
+
+    verify(repository, times(1)).searchStudent(student.getId());
+    verify(repository, times(1)).searchStudentCourse(student.getId());
+    Assertions.assertEquals(student, result.getStudent());
+    Assertions.assertEquals(studentCourseList, result.getStudentsCourseList());
+  }
+
+  @Test
+  void 受講生の登録処理＿リポジトリの処理が適切に呼びだせていること() {
+    Student student = new Student();
+    StudentCourse studentCourse = new StudentCourse();
+    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+
+    sut.registerStudent(studentDetail);
+
+    verify(repository, times(1)).insertStudent(student);
+    verify(repository, times(1)).insertStudentCourse(studentCourse);
+  }
+
+  @Test
+  void 受講生の更新処理＿リポジトリの処理が適切に呼びだせていること() {
+    Student student = new Student();
+    StudentCourse studentCourse = new StudentCourse();
+    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+
+    sut.updateStudent(studentDetail);
+
+    verify(repository, times(1)).updateStudent(student);
+    verify(repository, times(1)).updateStudentCourse(studentCourse);
+  }
+}
+
+メソッド名は日本語でOK
+
+Mock
+・本物のオブジェクトの代わりに動作する “偽物（テスト用）” のこと
+・DB につながない、外部APIを呼ばない、実際の Service / Repository を使わない　代わりに、テスト中はこちらの指定した値を返してくれるオブジェクトです
+
+Mockito
+・モック（Mock）を作るためのフレームワーク
+
+@ExtendWith(MockitoExtension.class)
+Mockito を JUnit5 で使う設定
+
+@Mock
+・偽物を作る
+
+verify(repository, times(1)).search();
+・repositoryのsearch()を1回よびだせているか確認する
+・呼びだせていない場合テストはFAIL
+
+when(repository.search()).thenReturn(studentList);
+・repositoryのsearch()を呼びだしたとき、studentListを返す
+
+@BeforeEach
+・各テストメソッドの前に毎回実行
