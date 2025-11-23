@@ -1,12 +1,14 @@
 package training.StudentManagement03.service;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,12 +64,12 @@ class StudentServiceTest {
 
     verify(repository, times(1)).searchStudent(student.getId());
     verify(repository, times(1)).searchStudentCourse(student.getId());
-    Assertions.assertEquals(student, result.getStudent());
-    Assertions.assertEquals(studentCourseList, result.getStudentsCourseList());
+    assertEquals(student, result.getStudent());
+    assertEquals(studentCourseList, result.getStudentsCourseList());
   }
 
   @Test
-  void 受講生の登録処理＿リポジトリの処理が適切に呼びだせていること() {
+  void 受講生詳細の登録＿リポジトリの処理が適切に呼びだせていること() {
     Student student = new Student();
     StudentCourse studentCourse = new StudentCourse();
     List<StudentCourse> studentCourseList = List.of(studentCourse);
@@ -80,7 +82,22 @@ class StudentServiceTest {
   }
 
   @Test
-  void 受講生の更新処理＿リポジトリの処理が適切に呼びだせていること() {
+  void 受講生詳細の登録＿初期化処理が行われていること() {
+    int id = 777;
+    Student student = new Student();
+    student.setId(id);
+    StudentCourse studentCourse = new StudentCourse();
+
+    LocalDateTime now = LocalDateTime.now();
+    sut.initStudentsCourses(studentCourse, student.getId());
+
+    assertEquals(777, studentCourse.getStudentId());
+    assertEquals(Timestamp.valueOf(now), studentCourse.getCourseStart());
+    assertEquals(Timestamp.valueOf(now.plusYears(1)), studentCourse.getCourseEnd());
+  }
+
+  @Test
+  void 受講生詳細の更新＿リポジトリの処理が適切に呼びだせていること() {
     Student student = new Student();
     StudentCourse studentCourse = new StudentCourse();
     List<StudentCourse> studentCourseList = List.of(studentCourse);
