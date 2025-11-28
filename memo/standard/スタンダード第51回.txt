@@ -1,0 +1,69 @@
+// StudentControllerTest.java
+
+@Test
+  void 受講生詳細の登録が実行できて空のリストで返ってくること() throws Exception {
+    mockMvc.perform(post("/registerStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                    {
+                      "student" : {
+                          "name" : "コントローラーテスト",
+                          "kanaName" : "コントローラーテスト",
+                          "nickname" : "テスト",
+                          "email" : "test@gamil.com",
+                          "area" : "北京",
+                          "age" : 10,
+                          "gender" : "男性",
+                          "remark" : ""
+                      },
+                      "studentsCourseList" : [
+                          {
+                              "courseName" : "テストコース"
+                          }
+                      ]
+                    }
+                """
+            ))
+            .andExpect(status().isOk());
+
+    verify(service, times(1)).registerStudent(any());
+  }
+
+  @Test
+  void 受講生詳細の更新が実行できて空のリストで返ってくること() throws Exception {
+    mockMvc.perform(put("/updateStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                    {
+                      "student" : {
+                          "id" : 1,
+                          "name" : "コントローラーテスト",
+                          "kanaName" : "コントローラーテスト",
+                          "nickname" : "テスト",
+                          "email" : "test@gamil.com",
+                          "area" : "北京",
+                          "age" : 10,
+                          "gender" : "男性",
+                          "remark" : ""
+                      },
+                      "studentsCourseList" : [
+                          {
+                              "courseName" : "テストコース"
+                          }
+                      ]
+                    }
+                """
+            ))
+        .andExpect(status().isOk());
+
+    verify(service, times(1)).updateStudent(any());
+  }
+
+
+
+build → reports → tests → test → index.htmlでレポート確認
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+・@Order(n)の番号順に実行
