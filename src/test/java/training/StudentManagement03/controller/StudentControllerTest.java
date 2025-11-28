@@ -1,6 +1,7 @@
 package training.StudentManagement03.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -13,6 +14,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import training.StudentManagement03.data.Student;
@@ -35,6 +37,76 @@ class StudentControllerTest {
             .andExpect(status().isOk());
 
     verify(service, times(1)).searchStudentsList();
+  }
+
+  @Test
+  void 受講生詳細のID検索が実行できて空のリストが返ってくること() throws Exception {
+    int id = 1;
+    mockMvc.perform(get("/student/{id}", id))
+        .andExpect(status().isOk());
+
+    verify(service, times(1)).searchStudent(id);
+  }
+
+  @Test
+  void 受講生詳細の登録が実行できて空のリストで返ってくること() throws Exception {
+    mockMvc.perform(post("/registerStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                    {
+                      "student" : {
+                          "name" : "コントローラーテスト",
+                          "kanaName" : "コントローラーテスト",
+                          "nickname" : "テスト",
+                          "email" : "test@gamil.com",
+                          "area" : "北京",
+                          "age" : 10,
+                          "gender" : "男性",
+                          "remark" : ""
+                      },
+                      "studentsCourseList" : [
+                          {
+                              "courseName" : "テストコース"
+                          }
+                      ]
+                    }
+                """
+            ))
+            .andExpect(status().isOk());
+
+    verify(service, times(1)).registerStudent(any());
+  }
+
+  @Test
+  void 受講生詳細の更新が実行できて空のリストで返ってくること() throws Exception {
+    mockMvc.perform(put("/updateStudent")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(
+                """
+                    {
+                      "student" : {
+                          "id" : 1,
+                          "name" : "コントローラーテスト",
+                          "kanaName" : "コントローラーテスト",
+                          "nickname" : "テスト",
+                          "email" : "test@gamil.com",
+                          "area" : "北京",
+                          "age" : 10,
+                          "gender" : "男性",
+                          "remark" : ""
+                      },
+                      "studentsCourseList" : [
+                          {
+                              "courseName" : "テストコース"
+                          }
+                      ]
+                    }
+                """
+            ))
+        .andExpect(status().isOk());
+
+    verify(service, times(1)).updateStudent(any());
   }
 
   @Test
