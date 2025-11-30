@@ -1,0 +1,356 @@
+// StudentConverterTest.java
+
+package training.StudentManagement03.controller.converter;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import training.StudentManagement03.data.Student;
+import training.StudentManagement03.data.StudentCourse;
+import training.StudentManagement03.domain.StudentDetail;
+
+class StudentConverterTest {
+
+  private StudentConverter sut;
+
+  @BeforeEach
+  void before() {
+    sut = new StudentConverter();
+  }
+
+  @Test
+  void 受講生と受講生コース情報を渡して受講生詳細のリストを返すこと() {
+    Student student1 = new Student();
+    student1.setId(1);
+    student1.setName("A");
+
+    Student student2 = new Student();
+    student2.setId(2);
+    student2.setName("B");
+
+    List<Student> students = List.of(student1, student2);
+
+    StudentCourse course1 = new StudentCourse();
+    course1.setId(1);
+    course1.setStudentId(1);
+    course1.setCourseName("テスト1コース");
+
+    StudentCourse course2 = new StudentCourse();
+    course2.setId(2);
+    course2.setStudentId(1);
+    course2.setCourseName("テスト2コース");
+
+    StudentCourse course3 = new StudentCourse();
+    course3.setId(3);
+    course3.setStudentId(2);
+    course3.setCourseName("テスト3コース");
+
+    List<StudentCourse> courses = List.of(course1, course2, course3);
+
+    List<StudentDetail> studentDetails = sut.convertStudentDetails(students, courses);
+
+    assertThat(studentDetails.get(0).getStudent()).isEqualTo(students.get(0));
+    assertThat(studentDetails.get(0).getStudentsCourseList())
+        .containsExactly(courses.get(0), courses.get(1));
+
+    assertThat(studentDetails.get(1).getStudent()).isEqualTo(students.get(1));
+    assertThat(studentDetails.get(1).getStudentsCourseList())
+        .containsExactly(courses.get(2));
+  }
+
+  @Test
+  void 受講生と受講生コース情報が紐づいていない場合は除外すること() {
+    Student student1 = new Student();
+    student1.setId(1);
+    student1.setName("A");
+
+    Student student2 = new Student();
+    student2.setId(2);
+    student2.setName("B");
+
+    List<Student> students = List.of(student1, student2);
+
+    StudentCourse course1 = new StudentCourse();
+    course1.setId(1);
+    course1.setStudentId(1);
+    course1.setCourseName("テスト1コース");
+
+    StudentCourse course2 = new StudentCourse();
+    course2.setId(2);
+    course2.setStudentId(1);
+    course2.setCourseName("テスト2コース");
+
+    StudentCourse course3 = new StudentCourse();
+    course3.setId(3);
+    course3.setStudentId(3);
+    course3.setCourseName("テスト3コース");
+
+    List<StudentCourse> courses = List.of(course1, course2, course3);
+
+    List<StudentDetail> studentDetails = sut.convertStudentDetails(students, courses);
+
+    assertThat(studentDetails.get(0).getStudent()).isEqualTo(students.get(0));
+    assertThat(studentDetails.get(0).getStudentsCourseList())
+        .containsExactly(courses.get(0), courses.get(1));
+
+    assertThat(studentDetails.get(1).getStudent()).isEqualTo(students.get(1));
+    assertThat(studentDetails.get(1).getStudentsCourseList())
+        .isEmpty();
+  }
+}
+
+
+
+
+Repositoryのテスト
+
+
+// build.gradle
+
+// MyBatis Test
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5' を追加
+・@MybatisTestが使えるようになる
+// H2(InMemoryDB)
+	testImplementation 'com.h2database:h2:2.4.240'
+・一時的のデータベース
+・テストを起動しているときのみ動いている
+
+
+
+
+※現時点でのdependencies
+dependencies {
+
+	// Spring Boot
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Thymeleaf
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	//validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// OpenAPI Generator
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
+
+	// Apache Commons Lang（便利機能）
+	implementation 'org.apache.commons:commons-lang3:3.19.0'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// MySQLドライバ
+	runtimeOnly 'com.mysql:mysql-connector-j:9.4.0'
+
+	// MyBatis
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+	// APサーバー
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+	// SpringBoot Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// MyBatis Test
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
+
+	// H2(InMemoryDB)
+  	testImplementation 'com.h2database:h2:2.4.240'
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+
+
+テスト用のapplication.propertiesを作成する
+  1.テストモジュールの中にresourcesディレクトリを作成
+  2.そこにコピーしたapplication.propertiesを貼り付け
+
+// test￥application.properties
+
+spring.sql.init.mode=always　を追加
+
+Driverの変更(sql → h2)
+  spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+                          ↓
+  spring.datasource.driver-class-name=org.h2.Driver に変更
+
+URL の変更
+  spring.datasource.url=jdbc:mysql://localhost:3306/studentmanagement03
+                          ↓
+  spring.datasource.url=jdbc:h2:-/test:MODE=MySQL
+
+username,password　の変更
+  spring.datasource.username=root
+  spring.datasource.password=SQLSaitoShogo
+                          ↓
+  spring.datasource.username=sa
+  spring.datasource.password=sa
+
+h2のコンソールを有効化
+  spring.h2.console.enabled=true
+
+
+
+
+
+※現時点での// test￥application.properties
+
+spring.application.name=StudentManagement03
+spring.sql.init.mode=always
+
+spring.datasource.url=jdbc:h2:-/test:MODE=MySQL
+spring.datasource.username=sa
+spring.datasource.password=sa
+spring.datasource.driver-class-name=org.h2.Driver
+spring.h2.console.enabled=true
+
+#MyBatis???
+mybatis.configuration.map-underscore-to-camel-case=true
+mybatis.mapper-locations=classpath*:/mapper/*.xml
+
+
+spring.datasource.sql-script-encoding=UTF-8
+spring.sql.init.encoding=UTF-8
+
+spring.http.encoding.enabled=true
+spring.http.encoding.force=true
+spring.http.encoding.charset=UTF-8
+
+
+
+※現時点での　StudentRepositoryTest.javaのコード
+
+package training.StudentManagement03.repository;
+
+import org.junit.jupiter.api.Test;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
+
+@MybatisTest
+class StudentRepositoryTest {
+
+  @Test
+  void test() {};
+}
+
+
+                        -----ここまででテストを動かせる-----
+
+
+
+
+schema.sql,data.sqlはh2のデータベースが立ち上がる時に自動でSQLを作成してくれる
+schemaはデータベースの構造
+dataはテーブルにINSERTするデータ
+
+// schema.sql
+
+CREATE TABLE students (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  kana_name VARCHAR(100),
+  nick_name VARCHAR(100),
+  email VARCHAR(100),
+  area VARCHAR(100),
+  age INT,
+  gender VARCHAR(100),
+  remark VARCHAR(100),
+  is_deleted BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE students_courses (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  student_id INT NOT NULL,
+  course_name VARCHAR(100) NOT NULL,
+  course_start TIMESTAMP NULL,
+  course_end TIMESTAMP NULL,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);
+
+
+
+
+// data.sql
+
+INSERT INTO students (name, kana_name, nick_name, email, area, age, gender, remark, is_deleted)
+VALUES
+('円堂守', 'エンドウマモル', 'マモル', 'mamoru.endo@gmail.com', '東京', 15, '男性', 'サッカー大好き', FALSE),
+('越前リョーマ', 'エチゼンリョーマ', 'リョーマ', 'ryoma.echizen@gmail.com', '東京', 13, '男性', NULL, FALSE),
+('桜木花道', 'サクラギハナミチ', 'ハナミチ', 'hanamichi.sakuragi@gmail.com', '神奈川', 15, '男性', NULL, FALSE),
+('日向翔陽', 'ヒナタショウヨウ', 'ショーヨー', 'shoyo.hinata@gmail.com', '宮城', 15, '男性', NULL, FALSE),
+('茂野吾郎', 'シゲノゴロウ', 'ゴロー', 'goro.shigeno@gmail.com', '神奈川', 18, '男性', NULL, FALSE),
+('村井', 'ムライ', 'ムラ', 'murai.@gmail.com', '大阪', 69, '男性', '寝坊', FALSE),
+('水野', 'ミズノ', 'ミーミー', 'mizuno.@gamil.com', '秋田', 8, '男性', '早起き', FALSE),
+('キャサリン', 'キャサリン', 'キャッシー', 'kyasarin.@gmail.com', 'アメリカ', 60, '女性', '外国人', FALSE),
+('トーマス', 'トーマス', 'マソ', 'tomasu@gmail.com', 'オーストラリア', 22, '男性', '', FALSE),
+('美舞', 'ミマイ', 'マイマイ', 'mimai@gmail.com', '岡山', 27, '女性', '', FALSE),
+('戸田', 'トダ', 'トダダダ', 'toda@gmail.com', '青森', 36, '男性', '', FALSE),
+('角刈り', 'カクガリ', 'ソリアゲ', 'kakugari@gmail.com', '愛媛', 17, '男性', '', FALSE),
+('角刈り', 'カクガリ', 'ソリアゲ', 'kakugari@gmail.com', '愛媛', 17, '男性', '', FALSE),
+('角刈り', 'カクガリ', 'ソリアゲ', 'kakugari@gmail.com', '愛媛', 17, '男性', '', FALSE);
+
+INSERT INTO students_courses (student_id, course_name, course_start, course_end)
+VALUES
+(1, 'サッカー',       '2025-04-01 09:00:00', '2025-07-01 09:00:00'),
+(2, 'テニス',         '2025-04-10 10:00:00', '2025-08-10 10:00:00'),
+(3, 'バスケ',         '2025-05-01 09:00:00', '2025-09-01 09:00:00'),
+(4, 'バレー',         '2025-06-01 09:00:00', '2025-09-30 09:00:00'),
+(5, '野球',           '2025-03-01 09:00:00', '2025-07-01 09:00:00'),
+(6, '麻雀',          '2025-11-02 20:16:36', '2026-11-02 20:16:36'),
+(7, '空手',          '2025-11-04 11:14:48', '2026-11-04 11:14:48'),
+(8, 'コミック',     '2025-11-04 12:39:27', '2026-11-04 12:39:27'),
+(9, '日本語コース', '2025-11-11 11:03:19', '2026-11-11 11:03:19'),
+(10, '洋楽コース',   '2025-11-11 11:09:33', '2026-11-11 11:09:33'),
+(11, '和菓子コース', '2025-11-11 14:10:56', '2026-11-11 14:10:56'),
+(12, '散髪コース',   '2025-11-14 12:03:08', '2026-11-14 12:03:08'),
+(13, '散髪コース',   '2025-11-14 14:19:05', '2026-11-14 14:19:05'),
+(14, '散髪コース',   '2025-11-16 09:32:19', '2026-11-16 09:32:19');
+
+
+
+
+// StudentRepositoryTest.java
+
+package training.StudentManagement03.repository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import training.StudentManagement03.data.Student;
+
+@MybatisTest
+class StudentRepositoryTest {
+
+  @Autowired
+  private StudentRepository sut;
+
+  @Test
+  void 受講生の全件検索が行えること() {
+    List<Student> actual = sut.search();
+    assertThat(actual.size()).isEqualTo(14);
+  }
+
+  @Test
+  void 受講生の登録が行えること() {
+    Student student = new Student();
+    student.setName("試験");
+    student.setKanaName("シケン");
+    student.setNickname("テスト");
+    student.setEmail("shiken@gmail.com");
+    student.setArea("東京");
+    student.setAge(15);
+    student.setGender("男性");
+    student.setRemark("");
+    student.setDeleted(false);
+
+    sut.insertStudent(student);
+
+    List<Student> actual = sut.search();
+
+    assertThat(actual.size()).isEqualTo(15);
+  }
+}
