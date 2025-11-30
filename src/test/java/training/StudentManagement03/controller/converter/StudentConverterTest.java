@@ -19,44 +19,82 @@ class StudentConverterTest {
   }
 
   @Test
-  void 受講生と受講生コース情報を組み合わせて受講生詳細を返すこと() {
-    Student student = new Student();
-    student.setId(1);
-    student.setName("テスト");
+  void 受講生と受講生コース情報を渡して受講生詳細のリストを返すこと() {
+    Student student1 = new Student();
+    student1.setId(1);
+    student1.setName("A");
 
-    List<Student> studentList = List.of(student);
+    Student student2 = new Student();
+    student2.setId(2);
+    student2.setName("B");
 
-    StudentCourse studentCourse = new StudentCourse();
-    studentCourse.setId(1);
-    studentCourse.setStudentId(1);
-    studentCourse.setCourseName("テストコース");
+    List<Student> students = List.of(student1, student2);
 
-    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    StudentCourse course1 = new StudentCourse();
+    course1.setId(1);
+    course1.setStudentId(1);
+    course1.setCourseName("テスト1コース");
 
-    List<StudentDetail> studentDetails = sut.convertStudentDetails(studentList, studentCourseList);
+    StudentCourse course2 = new StudentCourse();
+    course2.setId(2);
+    course2.setStudentId(1);
+    course2.setCourseName("テスト2コース");
 
-    assertThat(studentDetails.get(0).getStudent()).isEqualTo(student);
-    assertThat(studentDetails.get(0).getStudentsCourseList()).isEqualTo(studentCourseList);
+    StudentCourse course3 = new StudentCourse();
+    course3.setId(3);
+    course3.setStudentId(2);
+    course3.setCourseName("テスト3コース");
+
+    List<StudentCourse> courses = List.of(course1, course2, course3);
+
+    List<StudentDetail> studentDetails = sut.convertStudentDetails(students, courses);
+
+    assertThat(studentDetails.get(0).getStudent()).isEqualTo(students.get(0));
+    assertThat(studentDetails.get(0).getStudentsCourseList())
+        .containsExactly(courses.get(0), courses.get(1));
+
+    assertThat(studentDetails.get(1).getStudent()).isEqualTo(students.get(1));
+    assertThat(studentDetails.get(1).getStudentsCourseList())
+        .containsExactly(courses.get(2));
   }
 
   @Test
   void 受講生と受講生コース情報が紐づいていない場合は除外すること() {
-    Student student = new Student();
-    student.setId(1);
-    student.setName("テスト");
+    Student student1 = new Student();
+    student1.setId(1);
+    student1.setName("A");
 
-    List<Student> studentList = List.of(student);
+    Student student2 = new Student();
+    student2.setId(2);
+    student2.setName("B");
 
-    StudentCourse studentCourse = new StudentCourse();
-    studentCourse.setId(1);
-    studentCourse.setStudentId(2);
-    studentCourse.setCourseName("テストコース");
+    List<Student> students = List.of(student1, student2);
 
-    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    StudentCourse course1 = new StudentCourse();
+    course1.setId(1);
+    course1.setStudentId(1);
+    course1.setCourseName("テスト1コース");
 
-    List<StudentDetail> studentDetails = sut.convertStudentDetails(studentList, studentCourseList);
+    StudentCourse course2 = new StudentCourse();
+    course2.setId(2);
+    course2.setStudentId(1);
+    course2.setCourseName("テスト2コース");
 
-    assertThat(studentDetails.get(0).getStudent()).isEqualTo(student);
-    assertThat(studentDetails.get(0).getStudentsCourseList()).isEmpty();
+    StudentCourse course3 = new StudentCourse();
+    course3.setId(3);
+    course3.setStudentId(3);
+    course3.setCourseName("テスト3コース");
+
+    List<StudentCourse> courses = List.of(course1, course2, course3);
+
+    List<StudentDetail> studentDetails = sut.convertStudentDetails(students, courses);
+
+    assertThat(studentDetails.get(0).getStudent()).isEqualTo(students.get(0));
+    assertThat(studentDetails.get(0).getStudentsCourseList())
+        .containsExactly(courses.get(0), courses.get(1));
+
+    assertThat(studentDetails.get(1).getStudent()).isEqualTo(students.get(1));
+    assertThat(studentDetails.get(1).getStudentsCourseList())
+        .isEmpty();
   }
 }
