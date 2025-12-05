@@ -2,23 +2,23 @@ package training.StudentManagement03.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import training.StudentManagement03.data.Student;
+import training.StudentManagement03.data.CourseStatus;
+import training.StudentManagement03.data.StudentCourse;
 
-@Schema(description = "受講生詳細")
+@Schema(description = "受講生コース詳細")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentDetail {
+public class StudentCourseDetail {
 
   @Valid
-  private Student student;
+  private StudentCourse studentCourse;
 
   @Valid
-  private List<StudentCourseDetail> studentsCourseList;
+  private CourseStatus courseStatus;
 }
