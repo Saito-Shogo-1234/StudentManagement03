@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import training.StudentManagement03.data.CourseStatus;
 import training.StudentManagement03.data.Student;
 import training.StudentManagement03.data.StudentCourse;
 
@@ -40,6 +41,19 @@ class StudentRepositoryTest {
     Student student = sut.searchStudent(1);
     List<StudentCourse> actual = sut.searchStudentCourse(student.getId());
     assertThat(actual.getFirst().getCourseName()).isEqualTo("サッカー");
+  }
+
+  @Test
+  void 受講状況の全件検索が行えること() {
+    List<StudentCourse> studentCourse = sut.searchStudentCourse(1);
+    CourseStatus actual = sut.searchCourseStatus(studentCourse.getFirst().getId());
+    assertThat(actual.getStatus()).isEqualTo("仮申し込み");
+  }
+
+  @Test
+  void 受講生コース情報のIDに紐づく受講状況の検索が行えること() {
+    List<CourseStatus> actual = sut.searchStatus();
+    assertThat(actual.size()).isEqualTo(14);
   }
 
   @Test
@@ -88,6 +102,41 @@ class StudentRepositoryTest {
     List<StudentCourse> actual = sut.searchCourse();
 
     assertThat(actual.size()).isEqualTo(15);
+  }
+
+  @Test
+  void 受講生状況の登録が行えること() {
+    Student student = new Student();
+    student.setName("試験");
+    student.setKanaName("シケン");
+    student.setNickname("テスト");
+    student.setEmail("shiken@gmail.com");
+    student.setArea("東京");
+    student.setAge(15);
+    student.setGender("男性");
+    student.setRemark("");
+    student.setDeleted(false);
+
+    sut.insertStudent(student);
+
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setStudentId(student.getId());
+    studentCourse.setCourseName("テストコース");
+    studentCourse.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
+    studentCourse.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
+
+    sut.insertStudentCourse(studentCourse);
+
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setCourseId(studentCourse.getId());
+    courseStatus.setStatus("本申し込み");
+
+    sut.insertCourseStatus(courseStatus);
+
+    List<CourseStatus> actual = sut.searchStatus();
+
+    assertThat(actual.size()).isEqualTo(15);
+    assertThat(actual.getLast().getStatus()).isEqualTo("本申し込み");
   }
 
   @Test
@@ -144,5 +193,43 @@ class StudentRepositoryTest {
     List<StudentCourse> actual = sut.searchStudentCourse(studentCourse.getStudentId());
 
     assertThat(actual.getFirst().getCourseName()).isEqualTo("テスト更新コース");
+  }
+
+  @Test
+  void 受講状況の更新が行えること() {
+    Student student = new Student();
+    student.setName("試験");
+    student.setKanaName("シケン");
+    student.setNickname("テスト");
+    student.setEmail("shiken@gmail.com");
+    student.setArea("東京");
+    student.setAge(15);
+    student.setGender("男性");
+    student.setRemark("");
+    student.setDeleted(false);
+
+    sut.insertStudent(student);
+
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setStudentId(student.getId());
+    studentCourse.setCourseName("テストコース");
+    studentCourse.setCourseStart(Timestamp.valueOf(LocalDateTime.now()));
+    studentCourse.setCourseEnd(Timestamp.valueOf(LocalDateTime.now().plusYears(1)));
+
+    sut.insertStudentCourse(studentCourse);
+
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setCourseId(studentCourse.getId());
+    courseStatus.setStatus("仮申し込み");
+
+    sut.insertCourseStatus(courseStatus);
+
+    courseStatus.setStatus("本申し込み");
+
+    sut.updateCourseStatus(courseStatus);
+
+    CourseStatus actual = sut.searchCourseStatus(courseStatus.getCourseId());
+
+    assertThat(actual.getStatus()).isEqualTo("本申し込み");
   }
 }

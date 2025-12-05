@@ -24,6 +24,16 @@
     SELECT * FROM students_courses WHERE student_id = #{studentId}
   </select>
 
+  <!-- 受講状況の全件検索 -->
+  <select id="searchStatus" resultType="training.StudentManagement03.data.CourseStatus">
+    SELECT * FROM course_status
+  </select>
+
+  <!-- 受講状況の検索 -->
+  <select id="searchCourseStatus" resultType="training.StudentManagement03.data.CourseStatus">
+    SELECT * FROM course_status WHERE student_course_id = #{courseId}
+  </select>
+
   <!-- 受講生の新規登録 -->
   <insert id="insertStudent" parameterType="training.StudentManagement03.data.Student" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO
@@ -37,15 +47,27 @@
     VALUES( #{studentId}, #{courseName}, #{courseStart}, #{courseEnd} )
   </insert>
 
+  <!-- 受講状況の新規登録 -->
+  <insert id="insertCourseStatus" parameterType="training.StudentManagement03.data.CourseStatus" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO
+    course_status ( student_course_id, status )
+    VALUES ( #{courseId}, #{status} )
+  </insert>
+
   <!-- 受講生の更新 -->
   <update id="updateStudent" parameterType="training.StudentManagement03.data.Student">
     UPDATE students
     SET name = #{name}, kana_name = #{kanaName}, nick_name = #{nickname}, email = #{email}, area = #{area}, age = #{age}, gender = #{gender}, remark = #{remark}, is_deleted = #{isDeleted} WHERE id = #{id}
   </update>
 
-  <!-- 受講生の更新 -->
+  <!-- 受講生コース情報の更新 -->
   <update id="updateStudentCourse" parameterType="training.StudentManagement03.data.StudentCourse">
     UPDATE students_courses SET course_name=#{courseName} WHERE id = #{id}
+  </update>
+
+  <!-- 受講状況の更新 -->
+  <update id="updateCourseStatus" parameterType="training.StudentManagement03.data.CourseStatus">
+    UPDATE course_status SET status=#{status} WHERE id = #{id}
   </update>
 
 </mapper>

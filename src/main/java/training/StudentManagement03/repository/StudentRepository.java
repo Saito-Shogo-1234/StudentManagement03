@@ -1,11 +1,8 @@
 package training.StudentManagement03.repository;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import training.StudentManagement03.data.CourseStatus;
 import training.StudentManagement03.data.Student;
 import training.StudentManagement03.data.StudentCourse;
 
@@ -45,6 +42,10 @@ public interface StudentRepository {
    */
   List<StudentCourse> searchStudentCourse(int studentId);
 
+  List<CourseStatus> searchStatus();
+
+  CourseStatus searchCourseStatus(int courseId);
+
   /**
    * 受講生を新規登録します。
    * IDに関しては自動採番を行う。
@@ -61,6 +62,8 @@ public interface StudentRepository {
    */
   void insertStudentCourse(StudentCourse studentCourse);
 
+  void insertCourseStatus(CourseStatus courseStatus);
+
   /**
    * 受講生を更新します。
    *
@@ -74,4 +77,6 @@ public interface StudentRepository {
    * @param studentCourse 受講生コース情報
    */
   void updateStudentCourse(StudentCourse studentCourse);
+
+  void updateCourseStatus(CourseStatus courseStatus);
 }
