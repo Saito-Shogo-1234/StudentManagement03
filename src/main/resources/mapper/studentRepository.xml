@@ -31,7 +31,7 @@
 
   <!-- 受講状況の検索 -->
   <select id="searchCourseStatus" resultType="training.StudentManagement03.data.CourseStatus">
-    SELECT * FROM course_status WHERE student_course_id = #{courseId}
+    SELECT * FROM course_status WHERE student_course_id = #{studentCourseId}
   </select>
 
   <!-- 受講生の新規登録 -->
@@ -51,7 +51,7 @@
   <insert id="insertCourseStatus" parameterType="training.StudentManagement03.data.CourseStatus" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO
     course_status ( student_course_id, status )
-    VALUES ( #{courseId}, #{status} )
+    VALUES ( #{studentCourseId}, #{status} )
   </insert>
 
   <!-- 受講生の更新 -->

@@ -10,6 +10,6 @@ import lombok.Setter;
 public class CourseStatus {
 
   private int id;
-  private int courseId;
+  private int studentCourseId;
   private String status;
 }

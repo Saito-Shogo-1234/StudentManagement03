@@ -32,7 +32,7 @@ public class StudentConverter {
     // 1. CourseId → CourseStatus（1件想定）
     Map<Integer, CourseStatus> statusMap = courseStatusList.stream()
         .collect(Collectors.toMap(
-            CourseStatus::getCourseId,
+            CourseStatus::getStudentCourseId,
             cs -> cs
         ));
 
@@ -59,7 +59,7 @@ public class StudentConverter {
               .filter(d -> d.getStudentCourse().getStudentId() == student.getId())
               .toList();
 
-          sd.setStudentsCourseList(coursesForStudent);
+          sd.setStudentCourseDetailList(coursesForStudent);
           return sd;
         })
         .toList();

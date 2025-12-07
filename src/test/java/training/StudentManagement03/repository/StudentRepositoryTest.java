@@ -128,7 +128,7 @@ class StudentRepositoryTest {
     sut.insertStudentCourse(studentCourse);
 
     CourseStatus courseStatus = new CourseStatus();
-    courseStatus.setCourseId(studentCourse.getId());
+    courseStatus.setStudentCourseId(studentCourse.getId());
     courseStatus.setStatus("本申し込み");
 
     sut.insertCourseStatus(courseStatus);
@@ -219,7 +219,7 @@ class StudentRepositoryTest {
     sut.insertStudentCourse(studentCourse);
 
     CourseStatus courseStatus = new CourseStatus();
-    courseStatus.setCourseId(studentCourse.getId());
+    courseStatus.setStudentCourseId(studentCourse.getId());
     courseStatus.setStatus("仮申し込み");
 
     sut.insertCourseStatus(courseStatus);
@@ -228,7 +228,7 @@ class StudentRepositoryTest {
 
     sut.updateCourseStatus(courseStatus);
 
-    CourseStatus actual = sut.searchCourseStatus(courseStatus.getCourseId());
+    CourseStatus actual = sut.searchCourseStatus(courseStatus.getStudentCourseId());
 
     assertThat(actual.getStatus()).isEqualTo("本申し込み");
   }

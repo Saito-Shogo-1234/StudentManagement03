@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 public class Student {
 
-
   private int id;
 
   @NotBlank

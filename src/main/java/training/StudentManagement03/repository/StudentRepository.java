@@ -44,7 +44,7 @@ public interface StudentRepository {
 
   List<CourseStatus> searchStatus();
 
-  CourseStatus searchCourseStatus(int courseId);
+  CourseStatus searchCourseStatus(int studentCourseId);
 
   /**
    * 受講生を新規登録します。
