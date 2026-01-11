@@ -5,19 +5,13 @@ import org.apache.ibatis.annotations.Mapper;
 import training.StudentManagement03.data.CourseStatus;
 import training.StudentManagement03.data.Student;
 import training.StudentManagement03.data.StudentCourse;
+import training.StudentManagement03.domain.StudentSearchCondition;
 
 /**
  * 受講生テーブルと受講生コース情報テーブルと紐づくRepositoryです。
  */
 @Mapper
 public interface StudentRepository {
-
-  /**
-   * 受講生の全件検索を行います。
-   *
-   * @return 受講生一覧(全件)
-   */
-  List<Student> search();
 
   /**
    * IDに紐づく受講生の検索を行います。
@@ -28,9 +22,17 @@ public interface StudentRepository {
   Student searchStudent(int id);
 
   /**
-   * 受講生のコース情報の全件検索を行います。
+   * 検索条件を指定して論理削除されていない受講生を検索します。
    *
-   * @return 受講生のコース情報(全件)
+   * @param condition 検索条件
+   * @return 受講生一覧
+   */
+  List<Student> searchStudentsByCondition(StudentSearchCondition condition);
+
+  /**
+   * 受講生コース情報を受講状況付きで全件検索を行います。
+   *
+   * @return 受講生のコース情報(受講状況付きで全件)
    */
   List<StudentCourse> searchCourse();
 
@@ -41,10 +43,6 @@ public interface StudentRepository {
    * @return 受講生IDに紐づく受講生コース情報
    */
   List<StudentCourse> searchStudentCourse(int studentId);
-
-  List<CourseStatus> searchStatus();
-
-  CourseStatus searchCourseStatus(int studentCourseId);
 
   /**
    * 受講生を新規登録します。
@@ -62,6 +60,12 @@ public interface StudentRepository {
    */
   void insertStudentCourse(StudentCourse studentCourse);
 
+  /**
+   * 受講状況を新規登録します。
+   * IDに関しては自動採番を行う。
+   *
+   * @param courseStatus 受講状況
+   */
   void insertCourseStatus(CourseStatus courseStatus);
 
   /**
@@ -78,5 +82,10 @@ public interface StudentRepository {
    */
   void updateStudentCourse(StudentCourse studentCourse);
 
+  /**
+   * 受講状況を更新します。
+   *
+   * @param courseStatus 受講状況
+   */
   void updateCourseStatus(CourseStatus courseStatus);
 }

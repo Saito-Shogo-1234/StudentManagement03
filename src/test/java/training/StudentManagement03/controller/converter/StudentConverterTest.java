@@ -20,7 +20,7 @@ class StudentConverterTest {
   }
 
   @Test
-  void 受講生と受講生コースと受講状況の情報を渡して受講生詳細のリストを返すこと() {
+  void 受講生と受講生コースと受講状況を渡して受講生詳細のリストを返すこと() {
     Student student1 = new Student();
     student1.setId(1);
     student1.setName("A");
@@ -34,49 +34,44 @@ class StudentConverterTest {
     StudentCourse course1 = new StudentCourse();
     course1.setId(1);
     course1.setStudentId(1);
-    course1.setCourseName("テスト1コース");
 
     StudentCourse course2 = new StudentCourse();
     course2.setId(2);
     course2.setStudentId(1);
-    course2.setCourseName("テスト2コース");
 
     StudentCourse course3 = new StudentCourse();
     course3.setId(3);
     course3.setStudentId(2);
-    course3.setCourseName("テスト3コース");
+
+    CourseStatus status1 = new CourseStatus();
+    status1.setStudentCourseId(1);
+    status1.setStatus("仮申し込み");
+
+    CourseStatus status2 = new CourseStatus();
+    status2.setStudentCourseId(2);
+    status2.setStatus("本申し込み");
+
+    CourseStatus status3 = new CourseStatus();
+    status3.setStudentCourseId(3);
+    status3.setStatus("本申し込み");
+
+    course1.setCourseStatus(status1);
+    course2.setCourseStatus(status2);
+    course3.setCourseStatus(status3);
 
     List<StudentCourse> courseList = List.of(course1, course2, course3);
 
-    CourseStatus courseStatus1 = new CourseStatus();
-    courseStatus1.setId(1);
-    courseStatus1.setStudentCourseId(1);
-    courseStatus1.setStatus("仮申し込み");
+    List<StudentDetail> studentDetails =
+        sut.convertStudentDetails(studentList, courseList);
 
-    CourseStatus courseStatus2 = new CourseStatus();
-    courseStatus2.setId(2);
-    courseStatus2.setStudentCourseId(2);
-    courseStatus2.setStatus("本申し込み");
+    assertThat(studentDetails.get(0).getStudentCourseList().get(0).getCourseStatus())
+        .isEqualTo(status1);
 
-    CourseStatus courseStatus3 = new CourseStatus();
-    courseStatus3.setId(3);
-    courseStatus3.setStudentCourseId(3);
-    courseStatus3.setStatus("本申し込み");
+    assertThat(studentDetails.get(0).getStudentCourseList().get(1).getCourseStatus())
+        .isEqualTo(status2);
 
-    List<CourseStatus> statusList = List.of(courseStatus1, courseStatus2, courseStatus3);
-
-    List<StudentDetail> studentDetails = sut.convertStudentDetails(studentList, courseList,
-        statusList);
-
-    assertThat(studentDetails.getFirst().getStudent()).isEqualTo(studentList.getFirst());
-    assertThat(studentDetails.getFirst().getStudentCourseDetailList().get(0).getStudentCourse()).isEqualTo(courseList.get(0));
-    assertThat(studentDetails.getFirst().getStudentCourseDetailList().get(1).getStudentCourse()).isEqualTo(courseList.get(1));
-    assertThat(studentDetails.get(0).getStudentCourseDetailList().getFirst().getCourseStatus()).isEqualTo(courseStatus1);
-    assertThat(studentDetails.get(0).getStudentCourseDetailList().get(1).getCourseStatus()).isEqualTo(courseStatus2);
-
-    assertThat(studentDetails.get(1).getStudent()).isEqualTo(studentList.get(1));
-    assertThat(studentDetails.get(1).getStudentCourseDetailList().get(0).getStudentCourse()).isEqualTo(courseList.get(2));
-    assertThat(studentDetails.get(1).getStudentCourseDetailList().get(0).getCourseStatus()).isEqualTo(courseStatus3);
+    assertThat(studentDetails.get(1).getStudentCourseList().get(0).getCourseStatus())
+        .isEqualTo(status3);
   }
 
   @Test
@@ -94,47 +89,47 @@ class StudentConverterTest {
     StudentCourse course1 = new StudentCourse();
     course1.setId(1);
     course1.setStudentId(1);
-    course1.setCourseName("テスト1コース");
 
     StudentCourse course2 = new StudentCourse();
     course2.setId(2);
     course2.setStudentId(1);
-    course2.setCourseName("テスト2コース");
 
     StudentCourse course3 = new StudentCourse();
     course3.setId(3);
     course3.setStudentId(3);
-    course3.setCourseName("テスト3コース");
+
+    CourseStatus status1 = new CourseStatus();
+    status1.setStudentCourseId(1);
+    status1.setStatus("仮申し込み");
+
+    CourseStatus status2 = new CourseStatus();
+    status2.setStudentCourseId(2);
+    status2.setStatus("本申し込み");
+
+    CourseStatus status3 = new CourseStatus();
+    status3.setStudentCourseId(3);
+    status3.setStatus("本申し込み");
+
+    course1.setCourseStatus(status1);
+    course2.setCourseStatus(status2);
+    course3.setCourseStatus(status3);
 
     List<StudentCourse> courseList = List.of(course1, course2, course3);
 
-    CourseStatus courseStatus1 = new CourseStatus();
-    courseStatus1.setId(1);
-    courseStatus1.setStudentCourseId(1);
-    courseStatus1.setStatus("仮申し込み");
+    List<StudentDetail> studentDetails = sut.convertStudentDetails(studentList, courseList);
 
-    CourseStatus courseStatus2 = new CourseStatus();
-    courseStatus2.setId(2);
-    courseStatus2.setStudentCourseId(2);
-    courseStatus2.setStatus("本申し込み");
+    assertThat(studentDetails.getFirst().getStudentCourseList().get(0))
+        .isEqualTo(courseList.get(0));
+    assertThat(studentDetails.getFirst().getStudentCourseList().get(1))
+        .isEqualTo(courseList.get(1));
 
-    CourseStatus courseStatus3 = new CourseStatus();
-    courseStatus3.setId(3);
-    courseStatus3.setStudentCourseId(3);
-    courseStatus3.setStatus("本申し込み");
-
-    List<CourseStatus> statusList = List.of(courseStatus1, courseStatus2, courseStatus3);
-
-    List<StudentDetail> studentDetails = sut.convertStudentDetails(studentList, courseList, statusList);
-
-    assertThat(studentDetails.getFirst().getStudent()).isEqualTo(studentList.getFirst());
-    assertThat(studentDetails.getFirst().getStudentCourseDetailList().get(0).getStudentCourse()).isEqualTo(courseList.get(0));
-    assertThat(studentDetails.getFirst().getStudentCourseDetailList().get(1).getStudentCourse()).isEqualTo(courseList.get(1));
-    assertThat(studentDetails.get(0).getStudentCourseDetailList().getFirst().getCourseStatus()).isEqualTo(courseStatus1);
-    assertThat(studentDetails.get(0).getStudentCourseDetailList().get(1).getCourseStatus()).isEqualTo(courseStatus2);
+    assertThat(studentDetails.get(0).getStudentCourseList().get(0).getCourseStatus())
+        .isEqualTo(status1);
+    assertThat(studentDetails.get(0).getStudentCourseList().get(1).getCourseStatus())
+        .isEqualTo(status2);
 
     assertThat(studentDetails.get(1).getStudent()).isEqualTo(studentList.get(1));
-    assertThat(studentDetails.get(1).getStudentCourseDetailList())
-        .isEmpty();
+    assertThat(studentDetails.get(1).getStudentCourseList()).isEmpty();
+
   }
 }

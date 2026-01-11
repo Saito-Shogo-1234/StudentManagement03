@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import training.StudentManagement03.data.Student;
+import training.StudentManagement03.data.StudentCourse;
 
 @Schema(description = "受講生詳細")
 @Getter
@@ -20,5 +21,5 @@ public class StudentDetail {
   private Student student;
 
   @Valid
-  private List<StudentCourseDetail> studentCourseDetailList;
+  private List<StudentCourse> studentCourseList;
 }

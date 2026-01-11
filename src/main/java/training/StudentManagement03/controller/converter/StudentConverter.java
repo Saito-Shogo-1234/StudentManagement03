@@ -1,13 +1,10 @@
 package training.StudentManagement03.controller.converter;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
-import training.StudentManagement03.data.CourseStatus;
 import training.StudentManagement03.data.Student;
 import training.StudentManagement03.data.StudentCourse;
-import training.StudentManagement03.domain.StudentCourseDetail;
 import training.StudentManagement03.domain.StudentDetail;
 
 /**
@@ -25,43 +22,25 @@ public class StudentConverter {
    */
   public List<StudentDetail> convertStudentDetails(
       List<Student> studentList,
-      List<StudentCourse> studentCourseList,
-      List<CourseStatus> courseStatusList)
-  {
+      List<StudentCourse> studentCourseList) {
 
-    // 1. CourseId → CourseStatus（1件想定）
-    Map<Integer, CourseStatus> statusMap = courseStatusList.stream()
-        .collect(Collectors.toMap(
-            CourseStatus::getStudentCourseId,
-            cs -> cs
-        ));
+    List<StudentDetail> result = new ArrayList<>();
 
-    // 2. StudentCourseDetail を作成
-    List<StudentCourseDetail> studentCourseDetails = studentCourseList.stream()
-        .map(course -> {
-          StudentCourseDetail detail = new StudentCourseDetail();
-          detail.setStudentCourse(course);
+    for (Student student : studentList) {
+      StudentDetail detail = new StudentDetail();
+      detail.setStudent(student);
 
-          // CourseId に紐づく status を設定（なければ null）
-          detail.setCourseStatus(statusMap.get(course.getId()));
-
-          return detail;
-        })
-        .toList();
-
-    // 3. StudentDetail を作成
-    return studentList.stream()
-        .map(student -> {
-          StudentDetail sd = new StudentDetail();
-          sd.setStudent(student);
-
-          List<StudentCourseDetail> coursesForStudent = studentCourseDetails.stream()
-              .filter(d -> d.getStudentCourse().getStudentId() == student.getId())
+      List<StudentCourse> related =
+          studentCourseList.stream()
+              .filter(c -> c.getStudentId() == student.getId())
               .toList();
 
-          sd.setStudentCourseDetailList(coursesForStudent);
-          return sd;
-        })
-        .toList();
+      detail.setStudentCourseList(related);
+
+      result.add(detail);
+    }
+
+    return result;
   }
 }
+

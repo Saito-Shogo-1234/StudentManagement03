@@ -4,6 +4,20 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="training.StudentManagement03.repository.StudentRepository">
 
+  <resultMap id="StudentCourseResultMap" type="training.StudentManagement03.data.StudentCourse">
+    <id property="id" column="sc_id"/>
+    <result property="studentId" column="sc_student_id"/>
+    <result property="courseName" column="sc_course_name"/>
+    <result property="courseStart" column="sc_course_start"/>
+    <result property="courseEnd" column="sc_course_end"/>
+
+    <association property="courseStatus" javaType="training.StudentManagement03.data.CourseStatus">
+      <id property="id" column="cs_id"/>
+      <result property="studentCourseId" column="cs_student_course_id"/>
+      <result property="status" column="cs_status"/>
+    </association>
+  </resultMap>
+
   <!-- 受講生の全件検索 -->
   <select id="search" resultType="training.StudentManagement03.data.Student">
     SELECT * FROM students
@@ -15,24 +29,68 @@
   </select>
 
   <!-- 受講生コース情報の全件検索 -->
-  <select id="searchCourse" resultType="training.StudentManagement03.data.StudentCourse">
-    SELECT * FROM students_courses
+  <select id="searchCourse" resultMap="StudentCourseResultMap">
+    SELECT
+    sc.id                       AS sc_id,
+    sc.student_id               AS sc_student_id,
+    sc.course_name              AS sc_course_name,
+    sc.course_start             AS sc_course_start,
+    sc.course_end               AS sc_course_end,
+    cs.id                       AS cs_id,
+    cs.student_course_id        AS cs_student_course_id,
+    cs.status                   AS cs_status
+    FROM students_courses sc
+    LEFT JOIN course_status cs
+    ON sc.id = cs.student_course_id
   </select>
 
   <!-- 受講生コース情報の検索 -->
-  <select id="searchStudentCourse" resultType="training.StudentManagement03.data.StudentCourse">
-    SELECT * FROM students_courses WHERE student_id = #{studentId}
+  <select id="searchStudentCourse" resultMap="StudentCourseResultMap">
+    SELECT
+    sc.id                       AS sc_id,
+    sc.student_id               AS sc_student_id,
+    sc.course_name              AS sc_course_name,
+    sc.course_start             AS sc_course_start,
+    sc.course_end               AS sc_course_end,
+    cs.id                       AS cs_id,
+    cs.student_course_id        AS cs_student_course_id,
+    cs.status                   AS cs_status
+    FROM students_courses sc
+    LEFT JOIN course_status cs
+    ON sc.id = cs.student_course_id
+    WHERE sc.student_id = #{studentId}
   </select>
 
-  <!-- 受講状況の全件検索 -->
-  <select id="searchStatus" resultType="training.StudentManagement03.data.CourseStatus">
-    SELECT * FROM course_status
+  <!-- 検索条件を指定して受講生を検索 -->
+  <select id="searchStudentsByCondition"
+    parameterType="training.StudentManagement03.domain.StudentSearchCondition"
+    resultType="training.StudentManagement03.data.Student">
+
+    SELECT *
+    FROM students
+
+    <where>
+      <if test="name != null and name != ''">
+        AND name LIKE CONCAT('%', #{name}, '%')
+      </if>
+
+      <if test="area != null and area != ''">
+        AND area = #{area}
+      </if>
+
+      <if test="age != null">
+        AND age = #{age}
+      </if>
+
+      <if test="gender != null and gender != ''">
+        AND gender = #{gender}
+      </if>
+
+      AND is_deleted = false
+    </where>
+
   </select>
 
-  <!-- 受講状況の検索 -->
-  <select id="searchCourseStatus" resultType="training.StudentManagement03.data.CourseStatus">
-    SELECT * FROM course_status WHERE student_course_id = #{studentCourseId}
-  </select>
 
   <!-- 受講生の新規登録 -->
   <insert id="insertStudent" parameterType="training.StudentManagement03.data.Student" useGeneratedKeys="true" keyProperty="id">
