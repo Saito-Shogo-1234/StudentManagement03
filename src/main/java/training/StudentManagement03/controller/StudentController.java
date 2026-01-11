@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import training.StudentManagement03.domain.StudentDetail;
+import training.StudentManagement03.domain.StudentSearchCondition;
 import training.StudentManagement03.service.StudentService;
 
 /**
@@ -33,16 +35,20 @@ public class StudentController {
   }
 
   /**
-   * 受講生詳細の一覧検索です。
-   * 全件検索を行うので、条件指定は行わない。
+   * 検索条件を指定して受講生を検索します。
+   * 条件なしで未削除の受講生を全件取得します。
    *
-   * @return 受講生詳細一覧(全件)
+   * @param condition 検索条件
+   * @return 受講生詳細一覧
    */
-  @Operation(summary = "受講生一覧検索", description = "受講生の一覧を検索します。")
-  @GetMapping("/studentList")
-  public List<StudentDetail> getStudentsList() {
-    return service.searchStudentsList();
+  @Operation(
+      summary = "受講生一覧・条件検索",
+      description = "条件を指定して受講生を検索します。条件なしで未削除の受講生を全件取得します。")
+  @GetMapping("/students")
+  public List<StudentDetail> getStudents(@ParameterObject StudentSearchCondition condition) {
+    return service.searchStudentsByCondition(condition);
   }
+
 
   /**
    * 受講生詳細の検索です。
@@ -51,8 +57,10 @@ public class StudentController {
    * @param id 受講生ID
    * @return 受講生
    */
-  @Operation(summary = "受講生検索", description = "任意の受講生を検索します。")
-  @GetMapping("/student/{id}")
+  @Operation(
+      summary = "受講生検索",
+      description = "任意の受講生を検索します。")
+  @GetMapping("/students/{id}")
   public StudentDetail getStudent(@PathVariable @Min(1) @Max(999) int id) {
     return service.searchStudent(id);
   }
@@ -63,8 +71,10 @@ public class StudentController {
    * @param studentDetail 受講生詳細
    * @return 実行結果
    */
-  @Operation(summary = "受講生登録", description = "受講生を登録します。")
-  @PostMapping("/registerStudent")
+  @Operation(
+      summary = "受講生登録",
+      description = "受講生を登録します。")
+  @PostMapping("/students")
   public ResponseEntity<StudentDetail> registerStudent(@RequestBody @Valid StudentDetail studentDetail) {
     StudentDetail responseStudentDetail = service.registerStudent(studentDetail);
     return ResponseEntity.ok(responseStudentDetail);
@@ -77,10 +87,13 @@ public class StudentController {
    * @param studentDetail 受講生詳細
    * @return 実行結果
    */
-  @Operation(summary = "受講生更新", description = "受講生の更新をします。")
-  @PutMapping("/updateStudent")
-  public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
+  @Operation(
+      summary = "受講生更新",
+      description = "受講生の更新をします。")
+  @PutMapping("/students/{id}")
+  public ResponseEntity<String> updateStudent(@PathVariable @Min(1) @Max(999) int id, @RequestBody @Valid StudentDetail studentDetail) {
+    studentDetail.getStudent().setId(id);
     service.updateStudent(studentDetail);
-    return ResponseEntity.ok("更新できました。");
+    return ResponseEntity.ok("更新完了");
   }
 }

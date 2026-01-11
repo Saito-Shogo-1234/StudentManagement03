@@ -124,7 +124,7 @@ public StudentDetail searchStudent(int id) {
   <div th:each="course, stat : *{studentCours}">
     <label for="studentCourseId"
            th:for="studentCours.__${stat.index}__.id">受講コースID: </label>
-    <input type="text" id="studentCourseId" th:id="studentCours.__${stat.index}__.id"
+    <input type="text" id="studentfCourseId" th:id="studentCours.__${stat.index}__.id"
            th:field="*{studentCours[__${stat.index}__].id}" />
 
     <label for="courseName"

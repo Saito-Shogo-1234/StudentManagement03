@@ -20,3 +20,12 @@ CREATE TABLE students_courses (
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
 
+CREATE TABLE course_status (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  student_course_id INT NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  CONSTRAINT fk_course_status_student_course
+    FOREIGN KEY (student_course_id)
+    REFERENCES students_courses(id)
+    ON DELETE CASCADE
+);

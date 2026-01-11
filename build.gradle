@@ -56,6 +56,9 @@ dependencies {
 	// SpringBoot Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+	// AssertJ
+	testImplementation 'org.assertj:assertj-core:3.25.3'
+
 	// MyBatis Test
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
 
